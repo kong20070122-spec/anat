@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>BMSC 1005 Anatomy Quiz</title>
+<style>
+:root {
+  --bg0: #070a10;
+  --bg1: #0c1220;
+  --bg2: #131b2c;
+  --card: #161f32;
+  --card-2: #1b253b;
+  --line: rgba(224, 195, 106, 0.22);
+  --line-strong: rgba(224, 195, 106, 0.45);
+  --gold: #e0c36a;
+  --gold-2: #f0d78a;
+  --gold-dim: #a4843a;
+  --cream: #f3ecd8;
+  --cream-dim: #c9c0a8;
+  --muted: #8b93a7;
+  --teal: #4ad4c2;
+  --teal-dim: #1e8f84;
+  --ok: #3fd191;
+  --ok-bg: rgba(63, 209, 145, 0.14);
+  --bad: #f0717a;
+  --bad-bg: rgba(240, 113, 122, 0.14);
+  --warn: #f0b35a;
+  --shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+  --radius: 18px;
+  --font-display: Palatino, "Palatino Linotype", "Iowan Old Style", "Songti TC", "Noto Serif TC", "PMingLiU", Georgia, serif;
+  --font-ui: "PingFang TC", "Hiragino Sans CNS", "Noto Sans TC", "Microsoft JhengHei", "Segoe UI", system-ui, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+html { background: var(--bg0); }
+body {
+  font-family: var(--font-ui);
+  color: var(--cream);
+  background:
+    radial-gradient(1200px 600px at 12% -10%, rgba(224, 195, 106, 0.08), transparent 55%),
+    radial-gradient(900px 500px at 110% 0%, rgba(74, 212, 194, 0.07), transparent 50%),
+    radial-gradient(800px 800px at 50% 120%, rgba(224, 195, 106, 0.05), transparent 50%),
+    var(--bg0);
+  min-height: 100dvh;
+  line-height: 1.55;
+}
+body::before {
+  content: "";
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size: 36px 36px;
+  mask-image: radial-gradient(ellipse at center, black 40%, transparent 80%);
+  z-index: 0;
+}
+#app { position: relative; z-index: 1; max-width: 920px; margin: 0 auto; padding: 28px 20px 64px; }
+button { font-family: inherit; color: inherit; }
+button:focus { outline: none; }
+button:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+.screen { display: none; animation: fadeUp 0.45s ease both; }
+.screen.active { display: block; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+@keyframes pulseOk {
+  0% { box-shadow: 0 0 0 0 rgba(63, 209, 145, 0.55); }
+  100% { box-shadow: 0 0 0 16px rgba(63, 209, 145, 0); }
+}
+@keyframes tick {
+  from { transform: scale(1.08); }
+  to { transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .screen, .opt, .progress > i, .streak { animation: none !important; transition: none !important; }
+}
+
+/* ===== HOME ===== */
+.hero { text-align: center; padding: 12px 0 8px; }
+.crest {
+  width: 72px; height: 72px; margin: 0 auto 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  display: grid; place-items: center;
+  background: radial-gradient(circle at 30% 25%, rgba(224,195,106,0.18), rgba(22,31,50,0.9));
+  box-shadow: 0 0 0 6px rgba(224,195,106,0.05), var(--shadow);
+}
+.crest svg { width: 42px; height: 42px; }
+.kicker {
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: var(--gold);
+  font-weight: 600;
+}
+h1 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(2rem, 6vw, 3.15rem);
+  margin: 8px 0 6px;
+  letter-spacing: 0.02em;
+  line-height: 1.15;
+  color: var(--cream);
+  text-shadow: 0 2px 24px rgba(0,0,0,0.4);
+}
+.subtitle { color: var(--cream-dim); margin: 0 0 8px; font-size: 0.98rem; }
+.lede { color: var(--muted); max-width: 38em; margin: 0 auto 22px; font-size: 0.92rem; }
+.stats-row {
+  display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 22px;
+}
+.pill {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-size: 0.82rem;
+  color: var(--cream-dim);
+}
+.pill strong { color: var(--gold-2); font-weight: 650; }
+
+.panel {
+  background: linear-gradient(180deg, rgba(27,37,59,0.92), rgba(16,23,38,0.96));
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px 18px 16px;
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+}
+.panel h2 {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  margin: 0 0 12px;
+  font-weight: 600;
+  display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+}
+.panel h2 span { font-family: var(--font-ui); font-size: 0.78rem; color: var(--muted); font-weight: 500; }
+.topics {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 8px;
+}
+.topic {
+  appearance: none;
+  background: var(--bg2);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 10px 12px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: border-color 0.15s, background 0.15s, transform 0.15s;
+}
+.topic:hover { border-color: var(--line-strong); background: var(--card-2); }
+.topic[aria-pressed="true"] {
+  border-color: var(--gold);
+  background: rgba(224, 195, 106, 0.1);
+}
+.topic .box {
+  width: 18px; height: 18px; border-radius: 5px;
+  border: 1.5px solid var(--gold-dim);
+  flex: none;
+  display: grid; place-items: center;
+  background: rgba(0,0,0,0.25);
+}
+.topic[aria-pressed="true"] .box {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #1a1406;
+  font-size: 12px; font-weight: 800;
+}
+.topic .name { flex: 1; font-size: 0.86rem; color: var(--cream); }
+.topic .zh { display: block; color: var(--muted); font-size: 0.72rem; margin-top: 1px; }
+.topic .n { font-variant-numeric: tabular-nums; color: var(--gold); font-size: 0.78rem; font-weight: 650; }
+.row-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.linkish {
+  background: none; border: 0; color: var(--teal); cursor: pointer;
+  padding: 4px 2px; font-size: 0.82rem; text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.setup {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+@media (max-width: 640px) { .setup { grid-template-columns: 1fr; } }
+.seg { display: flex; background: var(--bg2); border-radius: 12px; padding: 4px; gap: 4px; border: 1px solid rgba(255,255,255,0.05); }
+.seg button {
+  flex: 1; border: 0; background: transparent; border-radius: 9px;
+  padding: 8px 6px; cursor: pointer; color: var(--muted); font-size: 0.85rem;
+}
+.seg button[aria-pressed="true"] {
+  background: linear-gradient(180deg, rgba(224,195,106,0.25), rgba(224,195,106,0.1));
+  color: var(--cream); font-weight: 650;
+  box-shadow: inset 0 0 0 1px rgba(224,195,106,0.35);
+}
+.toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.switch {
+  position: relative; width: 46px; height: 26px; border-radius: 999px;
+  border: 1px solid var(--line); background: #0d1320; cursor: pointer; padding: 0; flex: none;
+}
+.switch i {
+  position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%;
+  background: var(--muted); transition: transform 0.2s, background 0.2s;
+}
+.switch[aria-pressed="true"] { background: rgba(74, 212, 194, 0.2); border-color: var(--teal); }
+.switch[aria-pressed="true"] i { transform: translateX(20px); background: var(--teal); }
+
+.cta-row { display: flex; flex-wrap: wrap; gap: 12px; }
+.btn {
+  appearance: none; border: 0; cursor: pointer;
+  border-radius: 14px; padding: 14px 22px; font-size: 1rem; font-weight: 700;
+  letter-spacing: 0.04em;
+  transition: transform 0.12s, filter 0.12s, background 0.12s;
+}
+.btn:hover { transform: translateY(-1px); filter: brightness(1.06); }
+.btn:active { transform: translateY(1px); }
+.btn-primary {
+  background: linear-gradient(180deg, #edd07a, #c9a227);
+  color: #1a1406;
+  box-shadow: 0 8px 24px rgba(201, 162, 39, 0.28);
+  flex: 1; min-width: 180px;
+}
+.btn-ghost {
+  background: var(--card);
+  border: 1px solid var(--line-strong);
+  color: var(--gold-2);
+}
+.btn-danger {
+  background: var(--bad-bg);
+  border: 1px solid rgba(240,113,122,0.4);
+  color: #ffc2c6;
+}
+.bank-card {
+  flex: 1; min-width: 220px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  text-align: left;
+  padding: 14px 16px;
+}
+.bank-card .left small { display: block; color: var(--muted); font-weight: 500; letter-spacing: 0; }
+.badge {
+  min-width: 36px; height: 36px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: rgba(240,113,122,0.18);
+  color: var(--bad);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.badge.empty { background: rgba(63,209,145,0.15); color: var(--ok); }
+
+/* ===== QUIZ ===== */
+.topbar {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap;
+}
+.icon-btn {
+  width: 40px; height: 40px; border-radius: 12px;
+  background: var(--card); border: 1px solid var(--line);
+  cursor: pointer; display: grid; place-items: center; flex: none;
+  color: var(--cream);
+}
+.icon-btn svg { width: 18px; height: 18px; }
+.progress-wrap { flex: 1; min-width: 140px; }
+.progress-meta {
+  display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--muted); margin-bottom: 5px;
+}
+.progress {
+  height: 8px; background: #0d1320; border-radius: 99px; overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.progress > i {
+  display: block; height: 100%; width: 0;
+  background: linear-gradient(90deg, var(--teal-dim), var(--gold));
+  border-radius: inherit;
+  transition: width 0.35s ease;
+}
+.hud {
+  display: flex; gap: 8px; margin-left: auto;
+}
+.hud .chip {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  color: var(--cream-dim);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.hud .chip b { color: var(--gold-2); }
+.hud .chip.warn { border-color: rgba(240,179,90,0.45); color: var(--warn); }
+.hud .chip.danger { border-color: rgba(240,113,122,0.5); color: var(--bad); animation: tick 0.4s ease; }
+.streak { color: var(--warn) !important; }
+
+.q-card {
+  background: linear-gradient(180deg, rgba(27,37,59,0.95), rgba(14,20,34,0.96));
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding: 22px 22px 18px;
+  box-shadow: var(--shadow);
+}
+.q-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--teal); border: 1px solid rgba(74,212,194,0.3);
+  padding: 3px 9px; border-radius: 99px; margin-bottom: 10px;
+}
+.q-num { color: var(--muted); font-size: 0.8rem; margin-bottom: 8px; }
+.stem {
+  font-family: var(--font-display);
+  font-size: clamp(1.12rem, 2.4vw, 1.42rem);
+  line-height: 1.45;
+  margin: 0 0 18px;
+  color: var(--cream);
+}
+.opts { display: flex; flex-direction: column; gap: 9px; }
+.opt {
+  appearance: none;
+  width: 100%;
+  text-align: left;
+  background: #101827;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 12px 14px;
+  cursor: pointer;
+  display: flex; align-items: flex-start; gap: 12px;
+  color: var(--cream);
+  font-size: 0.97rem;
+  line-height: 1.45;
+  transition: border-color 0.12s, background 0.12s, transform 0.12s;
+}
+.opt:hover:not(:disabled) { border-color: var(--line-strong); background: #152033; }
+.opt:disabled { cursor: default; }
+.letter {
+  flex: none;
+  width: 28px; height: 28px; border-radius: 8px;
+  display: grid; place-items: center;
+  background: rgba(224,195,106,0.12);
+  color: var(--gold);
+  font-weight: 800;
+  font-size: 0.85rem;
+  margin-top: 1px;
+}
+.opt.correct {
+  background: var(--ok-bg);
+  border-color: rgba(63, 209, 145, 0.7);
+  animation: pulseOk 0.6s ease;
+}
+.opt.correct .letter { background: var(--ok); color: #062214; }
+.opt.wrong {
+  background: var(--bad-bg);
+  border-color: rgba(240, 113, 122, 0.7);
+  animation: shake 0.4s ease;
+}
+.opt.wrong .letter { background: var(--bad); color: #2a070a; }
+.opt.dim { opacity: 0.55; }
+
+.feedback {
+  display: none;
+  margin-top: 16px;
+  padding: 14px 14px 12px;
+  border-radius: 14px;
+  border: 1px solid transparent;
+}
+.feedback.show { display: block; }
+.feedback.ok { background: var(--ok-bg); border-color: rgba(63,209,145,0.35); }
+.feedback.bad { background: var(--bad-bg); border-color: rgba(240,113,122,0.35); }
+.feedback .verdict {
+  font-weight: 800; margin: 0 0 6px; letter-spacing: 0.08em; font-size: 0.82rem;
+}
+.feedback.ok .verdict { color: var(--ok); }
+.feedback.bad .verdict { color: var(--bad); }
+.feedback p { margin: 0; color: var(--cream-dim); font-size: 0.92rem; }
+.feedback .src { margin-top: 8px; font-size: 0.75rem; color: var(--muted); }
+.quiz-footer { display: flex; justify-content: flex-end; margin-top: 14px; }
+
+/* ===== RESULT / BANK ===== */
+.score-ring-wrap { display: grid; place-items: center; margin: 8px 0 18px; }
+.score-ring { width: 168px; height: 168px; position: relative; }
+.score-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.score-ring .label {
+  position: absolute; inset: 0; display: grid; place-items: center; text-align: center;
+  font-family: var(--font-display);
+}
+.score-ring .label b { display: block; font-size: 2.2rem; line-height: 1; color: var(--gold-2); }
+.score-ring .label span { color: var(--muted); font-size: 0.78rem; font-family: var(--font-ui); }
+.result-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.stat {
+  background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px;
+  text-align: center;
+}
+.stat .k { display: block; color: var(--muted); font-size: 0.75rem; }
+.stat .v { font-family: var(--font-display); font-size: 1.25rem; color: var(--cream); }
+.miss-list { display: flex; flex-direction: column; gap: 8px; }
+.miss {
+  background: var(--bg2); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px; padding: 12px 14px; font-size: 0.88rem;
+}
+.miss .t { color: var(--teal); font-size: 0.72rem; margin-bottom: 4px; }
+.miss .you { color: var(--bad); }
+.miss .right { color: var(--ok); }
+.empty {
+  text-align: center; padding: 36px 16px; color: var(--muted);
+}
+.empty .big { font-size: 2rem; margin-bottom: 8px; }
+.bank-item {
+  display: flex; gap: 10px; align-items: flex-start;
+  background: var(--bg2); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px; padding: 12px; margin-bottom: 8px;
+}
+.bank-item p { margin: 0; flex: 1; font-size: 0.9rem; }
+.tiny {
+  background: none; border: 1px solid var(--line); color: var(--cream-dim);
+  border-radius: 8px; padding: 6px 8px; cursor: pointer; font-size: 0.75rem; flex: none;
+}
+.tiny:hover { border-color: var(--bad); color: var(--bad); }
+.kb-hint { text-align: center; color: var(--muted); font-size: 0.75rem; margin-top: 16px; }
+footer.colophon {
+  margin-top: 28px; text-align: center; color: var(--muted); font-size: 0.75rem;
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HOME -->
+  <section id="home" class="screen active" aria-label="主畫面">
+    <div class="hero">
+      <div class="crest" aria-hidden="true">
+        <svg viewBox="0 0 48 48" fill="none" stroke="#e0c36a" stroke-width="1.6">
+          <ellipse cx="24" cy="22" rx="11" ry="14"/>
+          <path d="M24 8v28M16 16h16M15 22h18M17 28h14"/>
+          <path d="M13 18c-4 2-6 6-4 9 2 2 5 1 7-1M35 18c4 2 6 6 4 9-2 2-5 1-7-1"/>
+          <path d="M20 36c-6 3-8 7-6 8h20c2-1 0-5-6-8"/>
+        </svg>
+      </div>
+      <div class="kicker">Hong Kong Baptist University</div>
+      <h1>BMSC 1005<br>Anatomy Quiz</h1>
+      <p class="subtitle">Prof. Joshua K.S. Ko  ·  課堂講義選擇題庫</p>
+      <p class="lede">遊戲式練習：每題五個選項、只有一個正確答案。答錯的題目會自動進入錯題庫，複習答對後才會移出。題目均根據講義內容編寫。</p>
+      <div class="stats-row">
+        <div class="pill">題庫共 <strong id="totalCount">0</strong> 題</div>
+        <div class="pill">12 個主題單元</div>
+        <div class="pill" id="lastScorePill" hidden>上次成績 <strong id="lastScoreText">—</strong></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>選擇主題 <span>可複選；未選則視為全部</span></h2>
+      <div id="topicGrid" class="topics"></div>
+      <div class="row-actions">
+        <button type="button" class="linkish" id="selectAllTopics">全選</button>
+        <button type="button" class="linkish" id="clearTopics">清除</button>
+      </div>
+    </div>
+
+    <div class="setup">
+      <div class="panel">
+        <h2>練習長度</h2>
+        <div class="seg" role="group" aria-label="練習長度">
+          <button type="button" data-len="20" aria-pressed="true">20 題</button>
+          <button type="button" data-len="40" aria-pressed="false">40 題</button>
+          <button type="button" data-len="0" aria-pressed="false">全部題目</button>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>計時挑戰 <span>預設為不限時練習</span></h2>
+        <div class="toggle-row">
+          <div>
+            <div style="font-size:0.92rem;">每題 30 秒</div>
+            <div style="color:var(--muted);font-size:0.8rem;">時間到視為答錯，並記入錯題庫</div>
+          </div>
+          <button type="button" class="switch" id="timerToggle" role="switch" aria-pressed="false" aria-label="開啟每題倒數計時">
+            <i></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="cta-row">
+      <button type="button" class="btn btn-primary" id="startBtn">開始測驗</button>
+      <button type="button" class="btn btn-ghost bank-card" id="openBankBtn">
+        <span class="left">進入<strong style="letter-spacing:0.08em;"> 錯題庫</strong><small id="bankPreview">尚未有錯題</small></span>
+        <span class="badge empty" id="bankBadge">0</span>
+      </button>
+    </div>
+    <p class="kb-hint">作答捷徑：鍵盤 1–5 或 A–E 選擇，Enter 進入下一題</p>
+    <footer class="colophon">題目依據 BMSC 1005 Anatomy lecture notes 編製，僅供課堂複習使用。</footer>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="quiz" class="screen" aria-label="測驗">
+    <div class="topbar">
+      <button type="button" class="icon-btn" id="quitBtn" aria-label="結束並返回">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div class="progress-wrap">
+        <div class="progress-meta">
+          <span id="progressLabel">第 1 題</span>
+          <span id="modeLabel">練習模式</span>
+        </div>
+        <div class="progress" aria-hidden="true"><i id="progressBar"></i></div>
+      </div>
+      <div class="hud">
+        <div class="chip">得分 <b id="scoreChip">0</b></div>
+        <div class="chip streak" id="streakChip" hidden>連對 <b id="streakVal">0</b></div>
+        <div class="chip" id="timerChip" hidden>⏱ <b id="timerVal">30</b>s</div>
+      </div>
+    </div>
+    <div class="q-card">
+      <div class="q-tag" id="qTopic"></div>
+      <div class="q-num" id="qNum"></div>
+      <h2 class="stem" id="qStem"></h2>
+      <div class="opts" id="qOpts" role="group" aria-label="選項"></div>
+      <div class="feedback" id="feedback" aria-live="polite">
+        <div class="verdict" id="fbVerdict"></div>
+        <p id="fbText"></p>
+        <div class="src" id="fbSrc"></div>
+      </div>
+      <div class="quiz-footer">
+        <button type="button" class="btn btn-primary" id="nextBtn" hidden>下一題</button>
+      </div>
+    </div>
+    <p class="kb-hint">1–5 / A–E 作答 · Enter 下一題 · Esc 結束</p>
+  </section>
+
+  <!-- RESULT -->
+  <section id="result" class="screen" aria-label="成績">
+    <div class="hero">
+      <div class="kicker">Session complete</div>
+      <h1 style="font-size:clamp(1.8rem,5vw,2.5rem);margin-bottom:4px;">測驗結束</h1>
+      <p class="subtitle" id="resultSub"></p>
+    </div>
+    <div class="score-ring-wrap">
+      <div class="score-ring">
+        <svg viewBox="0 0 120 120" aria-hidden="true">
+          <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="8"/>
+          <circle id="ringArc" cx="60" cy="60" r="52" fill="none" stroke="#e0c36a" stroke-width="8" stroke-linecap="round" stroke-dasharray="326.73" stroke-dashoffset="326.73"/>
+        </svg>
+        <div class="label"><b id="accLabel">0%</b><span id="scoreFrac">0 / 0</span></div>
+      </div>
+    </div>
+    <div class="result-grid">
+      <div class="stat"><span class="k">答對</span><span class="v" id="statCorrect">0</span></div>
+      <div class="stat"><span class="k">答錯</span><span class="v" id="statWrong">0</span></div>
+      <div class="stat"><span class="k">最高連對</span><span class="v" id="statStreak">0</span></div>
+      <div class="stat"><span class="k">用時</span><span class="v" id="statTime">—</span></div>
+    </div>
+    <div class="cta-row" style="margin-bottom:18px;">
+      <button type="button" class="btn btn-primary" id="retryBtn">再試一次</button>
+      <button type="button" class="btn btn-ghost" id="resultBankBtn">複習錯題</button>
+      <button type="button" class="btn btn-ghost" id="homeBtn">返回主頁</button>
+    </div>
+    <div class="panel">
+      <h2>錯過的題目 <span id="missCount">0</span></h2>
+      <div id="missList" class="miss-list"></div>
+    </div>
+  </section>
+
+  <!-- BANK -->
+  <section id="bank" class="screen" aria-label="錯題庫">
+    <div class="topbar">
+      <button type="button" class="icon-btn" id="bankBackBtn" aria-label="返回主頁">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div>
+        <div class="kicker">Wrong-answer bank</div>
+        <h1 style="font-size:1.6rem;margin:0;">錯題庫</h1>
+      </div>
+    </div>
+    <div id="bankEmpty" class="panel empty" hidden>
+      <div class="big">✦</div>
+      <p style="color:var(--cream);font-size:1.15rem;margin:0 0 6px;">錯題庫是空的</p>
+      <p style="margin:0 0 16px;">目前沒有待複習的題目。去測驗裡挑戰一下，答錯的題目會自動收藏在這裡。</p>
+      <button type="button" class="btn btn-primary" id="emptyHomeBtn">返回主頁開始練習</button>
+    </div>
+    <div id="bankFilled" hidden>
+      <div class="panel">
+        <p style="margin:0 0 12px;color:var(--cream-dim);">目前有 <strong id="bankCountLabel" style="color:var(--gold-2);">0</strong> 題待複習。在錯題練習中答對，或按「從錯題庫移除」，才會將題目移出。</p>
+        <div class="cta-row">
+          <button type="button" class="btn btn-primary" id="reviewStartBtn">開始錯題練習</button>
+          <button type="button" class="btn btn-danger" id="clearBankBtn">清空錯題庫</button>
+        </div>
+      </div>
+      <div id="bankList"></div>
+    </div>
+  </section>
+</div>
+
+<script>
+const QUESTIONS = [{"id":"AX01","topic":"Axial Skeleton","stem":"According to the lecture, the cranium is best defined as the:","options":["Skull including the mandible","Skull without the mandible","Facial skeleton plus the mandible only","Calvaria without the cranial base","Bones surrounding the mouth and nose only"],"answerIndex":1,"explanation":"講義將 cranium 定義為「去掉下頜骨的顱骨」（skull without the mandible）。","sourcePage":7},{"id":"AX02","topic":"Axial Skeleton","stem":"The dome-like roof of the skull is called the:","options":["Cranial base","Pterion","Calvaria (skullcap)","Facial skeleton","Mastoid process"],"answerIndex":2,"explanation":"顱頂呈穹窿狀的部分稱為 calvaria（skullcap，顱蓋）。","sourcePage":7},{"id":"AX03","topic":"Axial Skeleton","stem":"The cranial base is formed by the sphenoid bone together with parts of which bones?","options":["Frontal and parietal bones","Ethmoid and palatine bones","Maxilla and zygomatic bones","Occipital and temporal bones","Nasal and lacrimal bones"],"answerIndex":3,"explanation":"講義指出 cranial base 由蝶骨（sphenoid）加上枕骨與顳骨的部分構成。","sourcePage":7},{"id":"AX04","topic":"Axial Skeleton","stem":"The facial skeleton consists of bones that surround the mouth and nose and also:","options":["Form the entire calvaria","Contribute to the orbit","Form the foramen magnum only","Replace the mandible in the cranium","Enclose the vertebral canal"],"answerIndex":1,"explanation":"面顱骨圍繞口、鼻，並參與構成眼眶（orbit）。","sourcePage":7},{"id":"AX05","topic":"Axial Skeleton","stem":"How many cranial bones are identified in the lecture?","options":["6","8","10","12","14"],"answerIndex":1,"explanation":"講義標示共有 8 塊顱骨（cranial bones）；篩骨（ethmoid）是其中之一。","sourcePage":9},{"id":"AX06","topic":"Axial Skeleton","stem":"The lecture notes that 12 of the 14 facial bones are shown in one view. The remaining two facial bones are the:","options":["Nasal bones","Zygomatic bones","Palatine bones","Lacrimal bones","Inferior nasal conchae"],"answerIndex":2,"explanation":"其餘兩塊面顱骨為腭骨（palatine bones）。","sourcePage":13},{"id":"AX07","topic":"Axial Skeleton","stem":"The pterion is described in the lecture as:","options":["The thickest point of the human skull","The weakest point of the human skull","The midpoint of the sagittal suture","The attachment of the mastoid process","A foramen in the cranial base"],"answerIndex":1,"explanation":"Pterion 被稱為人類顱骨最薄弱處（the weakest point）。","sourcePage":10},{"id":"AX08","topic":"Axial Skeleton","stem":"According to the lecture, the pterion is an H-shaped formation of sutures from which three cranial bones?","options":["Frontal, parietal and sphenoid","Frontal, occipital and temporal","Parietal, occipital and ethmoid","Temporal, palatine and zygomatic","Sphenoid, maxilla and mandible"],"answerIndex":0,"explanation":"講義寫明 pterion 是由額骨、頂骨與蝶骨三塊顱骨縫合形成的 H 形構造。","sourcePage":11},{"id":"AX09","topic":"Axial Skeleton","stem":"A blow that fractures the pterion may rupture which vessel passing behind it?","options":["Anterior cerebral artery","Facial artery","Anterior branch of the middle meningeal artery","Internal jugular vein","Vertebral artery"],"answerIndex":2,"explanation":"Pterion 後方有腦膜中動脈前支通過；骨折可導致該血管破裂、血腫形成。","sourcePage":11},{"id":"AX10","topic":"Axial Skeleton","stem":"A hematoma after pterion fracture is dangerous mainly because it can:","options":["Occlude the vertebral arteries in the neck","Raise pressure on the underlying cerebral cortex and cause death within a few hours","Block the foramen magnum immediately","Sever the facial nerve in the parotid gland","Collapse the maxillary sinus"],"answerIndex":1,"explanation":"血腫使下方大腦皮質受壓升高，可在數小時內致命。","sourcePage":11},{"id":"AX11","topic":"Axial Skeleton","stem":"Infants at birth lack which processes that normally help protect the facial nerve?","options":["Coronoid and condylar processes","Mastoid and styloid processes","Zygomatic and alveolar processes","Pterygoid and palatine processes","Acromion and coracoid processes"],"answerIndex":1,"explanation":"新生兒尚無乳突與莖突，面神經較靠近顏面表面，難產時產鉗可能造成損傷。","sourcePage":24},{"id":"AX12","topic":"Axial Skeleton","stem":"Which of the following is a function of the paranasal sinuses listed in the lecture?","options":["Production of cerebrospinal fluid","Reduction of skull weight","Formation of red blood cells","Secretion of melatonin","Absorption of CSF into venous sinuses"],"answerIndex":1,"explanation":"鼻竇功能包括：加溫與濕潤吸入空氣、減輕顱骨重量，以及發聲時產生共鳴。","sourcePage":27},{"id":"AX13","topic":"Axial Skeleton","stem":"Functions of the ethmoidal cells listed in the lecture include olfactory sensation, humidification, ventilation and:","options":["Phonation","CSF production","Tear drainage into the nasal cavity","Attachment of the masseter","Transmission of the facial nerve"],"answerIndex":0,"explanation":"篩竇氣房的功能包括嗅覺、濕潤、通氣與發聲（phonation）。","sourcePage":29},{"id":"AX14","topic":"Axial Skeleton","stem":"Kyphosis (hunchback) is described as an abnormal increase in which curvature?","options":["Cervical curvature, curving anteriorly","Thoracic curvature, curving posteriorly","Lumbar curvature, curving anteriorly","Sacral curvature, curving laterally","Lumbosacral angle only, without thoracic change"],"answerIndex":1,"explanation":"駝背（kyphosis）是胸椎後凸異常增加；可由骨質疏鬆導致椎體前部侵蝕或骨折引起。","sourcePage":33},{"id":"AX15","topic":"Axial Skeleton","stem":"How are the ribs classified in the lecture?","options":["6 true, 4 false and 2 floating ribs","8 true, 2 false and 2 floating ribs","7 true, 5 false and 0 floating ribs","7 true, 3 false and 2 floating ribs","5 true, 5 false and 2 floating ribs"],"answerIndex":3,"explanation":"講義分類為真肋 7 對、假肋 3 對、浮肋 2 對。","sourcePage":34},{"id":"AX16","topic":"Axial Skeleton","stem":"Foramina of the transverse processes transmit vertebral arteries in cervical vertebrae except at:","options":["C1","C2","C3","C5","C7"],"answerIndex":4,"explanation":"橫突孔供椎動脈通過，但 C7 除外。C7 亦稱為 vertebra prominence。","sourcePage":37},{"id":"AX17","topic":"Axial Skeleton","stem":"Large vertebral foramina in C3–C7 are associated in the lecture with:","options":["Attachment of the first rib","Cervical enlargements for limb innervation","Passage of the thoracic duct","The lumbosacral angle","Costal facets for typical ribs"],"answerIndex":1,"explanation":"C3–C7 椎孔較大，與支配肢體的頸部膨大（cervical enlargements）有關。","sourcePage":37},{"id":"AX18","topic":"Axial Skeleton","stem":"In the lecture, C1 and C2 are identified respectively as the:","options":["Axis and atlas","Atlas and axis","Prominence and dens","Sacrum and coccyx","Axis and vertebra prominence"],"answerIndex":1,"explanation":"C1 為寰椎（atlas），C2 為樞椎（axis）。講義亦提及 C1 與 C2 的寰椎橫韌帶（transverse ligament of atlas）。","sourcePage":38},{"id":"AX19","topic":"Axial Skeleton","stem":"T1 is described as having a complete costal facet on its superior edge for which rib, plus a demifacet inferiorly?","options":["Rib 1 superiorly and rib 2 inferiorly","Rib 2 superiorly and rib 3 inferiorly","Rib 12 only","A typical rib on both edges","The first two floating ribs"],"answerIndex":0,"explanation":"T1 上緣有完整肋凹接第 1 肋，下緣有半肋凹接第 2 肋；T1 亦有類似 C7 的長棘突。","sourcePage":40},{"id":"AX20","topic":"Axial Skeleton","stem":"Which statement about L5 is supported by the lecture?","options":["It is the smallest movable vertebra","It is the largest of all movable vertebrae and transmits upper-body weight to the base of the sacrum","It has foramina in its transverse processes for vertebral arteries","It bears a complete costal facet for rib 12","It forms the vertebra prominence"],"answerIndex":1,"explanation":"L5 是所有可動椎骨中最大者，承擔上半身重量並傳至骶骨底（S1 上面），並形成腰骶角（椎體前方較厚）。","sourcePage":43},{"id":"AX21","topic":"Axial Skeleton","stem":"The inner gelatinous portion of an intervertebral disc is the:","options":["Annulus fibrosus","Nucleus pulposus","Ligamentum flavum","Zygapophyseal capsule","Transverse ligament of the atlas"],"answerIndex":1,"explanation":"椎間盤外層為纖維環（annulus fibrosus），內部為髓核（nucleus pulposus）。","sourcePage":36},{"id":"AP01","topic":"Appendicular Skeleton","stem":"A Colles fracture is typically caused by:","options":["A direct blow to the flexed elbow","Using an outstretched (extended) forearm to break a forward fall","Twisting the ankle on an inverted foot","Compression of the femoral neck in a seated position","Hyperextension of the knee with a valgus force"],"answerIndex":1,"explanation":"Colles 骨折常因向前跌倒時以伸直的前臂撐地而造成。","sourcePage":58},{"id":"AP02","topic":"Appendicular Skeleton","stem":"In a Colles fracture, derangement occurs at which joint?","options":["Proximal radioulnar joint","Humeroulnar joint","Distal radioulnar joint","Glenohumeral joint","Acromioclavicular joint"],"answerIndex":2,"explanation":"此骨折會擾亂遠端橈尺關節（distal radioulnar joint）的正常對位。","sourcePage":58},{"id":"AP03","topic":"Appendicular Skeleton","stem":"A Colles fracture may be accompanied by avulsion of which structure?","options":["Radial head","Olecranon process","Coracoid process","Ulnar styloid process","Medial epicondyle of the humerus"],"answerIndex":3,"explanation":"可能出現尺骨莖突撕脫（avulsion of the ulnar styloid process），以及橈骨遠端骨折。","sourcePage":58},{"id":"AP04","topic":"Appendicular Skeleton","stem":"The “dinner fork deformity” of a Colles fracture is produced by:","options":["Posterior displacement of the ulna through the interosseous membrane","Forward displacement of the proximal part of the fractured radius, overriding the distal part that contains the radial styloid process","Medial displacement of the humeral head from the glenoid","Separation of the scaphoid from the lunate only","Avulsion of the tibial tuberosity"],"answerIndex":1,"explanation":"骨折近端向前移位、疊壓含橈骨莖突的遠端骨片，形成「餐叉狀畸形」（dinner fork deformity）。","sourcePage":58},{"id":"AP05","topic":"Appendicular Skeleton","stem":"The lecture states that the pectineal line is the same as the:","options":["Arcuate line alone","Iliopectineal line alone","Pecten pubis (a ridge on the superior pubic ramus)","Pubic tubercle","Iliac tuberosity"],"answerIndex":2,"explanation":"Pectineal line = pecten pubis，是恥骨上支上的脊。","sourcePage":63},{"id":"AP06","topic":"Appendicular Skeleton","stem":"The iliopectineal line is formed by which combination?","options":["Pubic crest + pubic tubercle","Arcuate line + pectineal line","Iliac crest + anterior superior iliac spine","Soleal line + pectineal line","Inguinal ligament + lacunar ligament"],"answerIndex":1,"explanation":"Iliopectineal line = arcuate line + pectineal line。","sourcePage":63},{"id":"AP07","topic":"Appendicular Skeleton","stem":"A narrow subpubic angle is clinically important because it can:","options":["Prevent Colles fracture","Cause difficulty during parturition","Widen the pelvic inlet automatically","Protect the sciatic nerve from compression","Eliminate the need for the pubic symphysis"],"answerIndex":1,"explanation":"狹窄的恥骨下角會造成分娩困難。","sourcePage":65},{"id":"JT01","topic":"Joints & Articulations","stem":"A suture is a fibrous joint in which bones are fused by interlocking fibrous tissue and, in the cranium, are:","options":["Freely movable synovial joints","Slightly movable syndesmoses only","Immovable","United by a fibrocartilage disc","Peg-and-socket articulations of teeth"],"answerIndex":2,"explanation":"縫合（suture）以纖維組織交錯連接骨，在顱骨為不動關節。","sourcePage":72},{"id":"JT02","topic":"Joints & Articulations","stem":"A syndesmosis joins bones by a sheet of ligament or fibrous membrane in order to:","options":["Allow a wide range of hinge movement","Prevent separation between parallel bones (for example, an interosseous membrane)","Unite an epiphysis to a diaphysis by hyaline cartilage","Form a peglike tooth in a socket","Create a synovial cavity with an articular disc"],"answerIndex":1,"explanation":"韌帶聯合（syndesmosis）以韌帶或纖維膜連接，防止平行骨彼此分離，如骨間膜。","sourcePage":72},{"id":"JT03","topic":"Joints & Articulations","stem":"A gomphosis is best described as:","options":["An immovable cranial suture","A peglike process fitting into a socket articulation, almost immovable (teeth)","A fibrocartilage disc between vertebral bodies","A hyaline cartilage growth plate","A modified hinge synovial joint of the jaw"],"answerIndex":1,"explanation":"釘狀關節（gomphosis）是釘狀突起嵌入窩中的關節，幾乎不動，見於牙齒。","sourcePage":72},{"id":"JT04","topic":"Joints & Articulations","stem":"A synchondrosis unites bones by:","options":["A fibrocartilage disc or plate","Hyaline cartilage, as at an epiphyseal plate","A synovial capsule only","An interosseous membrane","A periodontal ligament alone, without cartilage"],"answerIndex":1,"explanation":"軟骨結合（synchondrosis）以透明軟骨連接兩骨，例如骺板（epiphyseal plate），屬初級軟骨關節。","sourcePage":73},{"id":"JT05","topic":"Joints & Articulations","stem":"Which of the following is given in the lecture as an example of a symphysis (fibrocartilage)?","options":["The sagittal suture","The gomphosis of a tooth","The pubic symphysis","The proximal radioulnar joint","The epiphyseal plate of a growing long bone"],"answerIndex":2,"explanation":"聯合（symphysis）以纖維軟骨盤連接，例子包括椎間盤、恥骨聯合，以及胸骨柄與胸骨體之間。屬次級軟骨關節。","sourcePage":73},{"id":"JT06","topic":"Joints & Articulations","stem":"Intervertebral joints from C2 to S1 are classified in the lecture as:","options":["Primary cartilaginous joints (synchondroses)","Secondary cartilaginous joints (symphyses)","Plane synovial joints only","Fibrous sutures","Gomphoses"],"answerIndex":1,"explanation":"C2–S1 的椎體間關節屬次級軟骨關節（symphyses）。","sourcePage":77},{"id":"JT07","topic":"Joints & Articulations","stem":"The temporomandibular joint (TMJ) is classified as:","options":["A typical suture","A syndesmosis","A modified hinged synovial joint","A primary cartilaginous joint","A gomphosis"],"answerIndex":2,"explanation":"TMJ 是改良鉸鏈型滑膜關節（modified hinged synovial joint）。","sourcePage":81},{"id":"JT08","topic":"Joints & Articulations","stem":"Articular surfaces of the TMJ involve the condyle of the mandible, the mandibular fossa and the:","options":["Coronoid process of the mandible","Articular tubercle of the temporal bone","Mastoid process","Pterygoid hamulus","Occipital condyle"],"answerIndex":1,"explanation":"關節面包括下頜髁突、顳骨關節結節（articular tubercle）與下頜窩。","sourcePage":81},{"id":"JT09","topic":"Joints & Articulations","stem":"The stylomandibular and sphenomandibular ligaments provide passive support of the mandible, but they cannot bear its weight. The weight is supported by muscles of mastication such as the:","options":["Lateral pterygoid and buccinator only","Masseter and medial pterygoid","Orbicularis oris and platysma","Sternocleidomastoid and trapezius","Temporalis and genioglossus only"],"answerIndex":1,"explanation":"這兩條韌帶不能承擔下頜重量；重量由咀嚼肌（如咬肌與內側翼肌）支持。韌帶則作為下頜的「擺動鉸鏈」支點。","sourcePage":82},{"id":"JT10","topic":"Joints & Articulations","stem":"In the TMJ, gliding movements (protrusion and retrusion) occur in the:","options":["Inferior compartment","Superior compartment","Pulp cavity of the teeth","Maxillary sinus","Stylomastoid foramen"],"answerIndex":1,"explanation":"上層關節腔負責滑動（前伸、後退）；下層關節腔負責鉸鏈運動（上提、下降）。","sourcePage":83},{"id":"JT11","topic":"Joints & Articulations","stem":"Which structure is described as preventing posterior dislocation of the TMJ?","options":["Coronoid process","Postglenoid tubercle","Hyoid bone","Mental spine","Articular disc of the knee"],"answerIndex":1,"explanation":"關節後結節（postglenoid tubercle）可防止 TMJ 向後脫位；外側顳下頜韌帶則加強關節外側。","sourcePage":83},{"id":"JT12","topic":"Joints & Articulations","stem":"Anterior dislocation of the mandible during yawning or taking a large bite is attributed to excessive contraction of which muscle?","options":["Masseter","Temporalis (posterior fibres)","Lateral pterygoid","Buccinator","Orbicularis oris"],"answerIndex":2,"explanation":"外側翼肌過度收縮可使下頜頭向前脫位，越過關節結節前方。","sourcePage":86},{"id":"JT13","topic":"Joints & Articulations","stem":"A sideways blow to the chin when the mouth is open is described as causing:","options":["Bilateral posterior TMJ dislocation behind the postglenoid tubercle","Unilateral TMJ dislocation","A gomphosis injury of the incisors only","Fracture of the pterion","Rupture of the calcaneal tendon"],"answerIndex":1,"explanation":"張口時下巴遭受側向打擊，可造成單側 TMJ 脫位。","sourcePage":86},{"id":"JT14","topic":"Joints & Articulations","stem":"With the arm extended, supination means the palm faces:","options":["Posteriorly","Anteriorly","Medially (the resting midway position)","Inferiorly","Toward the ipsilateral shoulder"],"answerIndex":1,"explanation":"臂伸直時，旋後（supination）使掌心向前；臂屈曲時則使掌心向上。休息中間位時掌心朝內側。","sourcePage":92},{"id":"JT15","topic":"Joints & Articulations","stem":"Pronation with the arm extended turns the palm so that it faces:","options":["Anteriorly","Superiorly","Posteriorly","Laterally","Toward the face"],"answerIndex":2,"explanation":"臂伸直時旋前（pronation）使掌心向後；臂屈曲時則使掌心向下。","sourcePage":92},{"id":"JT16","topic":"Joints & Articulations","stem":"During pronation and supination, the radial head rotates within the:","options":["Coracoacromial arch","Annular ligament","Inguinal ligament","Sphenomandibular ligament","Patellar ligament"],"answerIndex":1,"explanation":"橈骨頭在環狀韌帶（annular ligament）內旋轉。","sourcePage":93},{"id":"JT17","topic":"Joints & Articulations","stem":"The C-shaped meniscus of the knee is described as being firmly adhered to the:","options":["Fibular collateral ligament","Tibial collateral ligament","Calcaneal tendon","Annular ligament","Inguinal ligament"],"answerIndex":1,"explanation":"講義對比：較小、圓或卵圓、較可活動的半月板，與呈 C 形、牢固附著於脛側副韌帶的半月板。","sourcePage":104},{"id":"JT18","topic":"Joints & Articulations","stem":"Rupture of the medial meniscus is associated in the lecture with:","options":["Pterion fracture","Degenerative arthritis","Patent ductus arteriosus","Appendicitis","Anosmia"],"answerIndex":1,"explanation":"內側半月板破裂與退化性關節炎相關。","sourcePage":107},{"id":"MU01","topic":"Musculature","stem":"Contraction of the frontalis (frontal belly of occipitofrontalis) is described as producing which action?","options":["Closing the eyelids during blinking","Protruding the lips for kissing","Elevating the eyebrows and wrinkling the forehead skin (a look of surprise), and protracting the scalp","Pressing the cheek against the molar teeth","Retracting the mandible only"],"answerIndex":2,"explanation":"額肌可上提眉毛、皺起額部皮膚（驚訝表情），並使頭皮前移。","sourcePage":115},{"id":"MU02","topic":"Musculature","stem":"The palpebral part of orbicularis oculi acts to:","options":["Protrude the lips","Close the eyes","Elevate the mandible","Tense the palmar aponeurosis","Abduct the arm"],"answerIndex":1,"explanation":"眼輪匝肌壓迫上、下眼瞼：瞼部（palpebral part）閉眼，眶部（orbital part）參與眨眼。","sourcePage":115},{"id":"MU03","topic":"Musculature","stem":"Orbicularis oris compresses the lips in order to protrude them (kissing) and to:","options":["Elevate the eyebrows","Resist distention (whistling or blowing)","Retract the mandible","Open the vocal folds","Tense the skin of the neck only"],"answerIndex":1,"explanation":"口輪匝肌可撅唇（親吻），並在吹口哨或吹氣時抵抗口唇擴張。","sourcePage":115},{"id":"MU04","topic":"Musculature","stem":"Buccinator presses the cheek against the molar teeth during sucking and, with the tongue, keeps food out of the:","options":["Nasopharynx","Oral vestibule (during chewing)","Larynx","External acoustic meatus","Parotid duct"],"answerIndex":1,"explanation":"頰肌將頰緊貼臼齒，並與舌一起把食物從口腔前庭推回；亦可與口輪匝肌一起抵抗吹氣時的擴張。","sourcePage":116},{"id":"MU05","topic":"Musculature","stem":"Temporalis is described as acting to:","options":["Depress the chin and protract the mandible only","Elevate and retract the mandible","Tense the skin of the inferior face","Close the eyelids","Protrude the tongue"],"answerIndex":1,"explanation":"顳肌上提並後退下頜；附著於冠突內面與下頜支前緣。","sourcePage":119},{"id":"MU06","topic":"Musculature","stem":"The superficial fibres of masseter act to:","options":["Elevate and protrude the mandible","Only retract the mandible","Depress the hyoid after it has been elevated","Abduct the arm","Evert the foot"],"answerIndex":0,"explanation":"咬肌（淺層纖維）上提並前伸下頜，附著於下頜角及下頜支外面。","sourcePage":119},{"id":"MU07","topic":"Musculature","stem":"Lateral pterygoid is described as acting to protract the mandible, depress the chin and produce:","options":["Pure retraction of the mandible only","Lateral movements","Closure of the eyelids","Tension of the palmar aponeurosis","Extension of the vertebral column"],"answerIndex":1,"explanation":"外側翼肌前伸下頜、下降頦部，並產生側向運動；附著於髁突頸及 TMJ 關節盤。","sourcePage":120},{"id":"MU08","topic":"Musculature","stem":"Medial pterygoid acts to elevate and protrude the mandible and also contributes to:","options":["Depression of the soft palate only","Lateral movements of the mandible","Extension of the head and neck bilaterally, like splenius","Plantarflexion of the ankle","Closure of the glottis by the vocal folds"],"answerIndex":1,"explanation":"內側翼肌上提並前伸下頜，亦參與側向運動。","sourcePage":120},{"id":"MU09","topic":"Musculature","stem":"Palatoglossus is described as acting to:","options":["Depress the sides of the tongue and retrude it","Elevate the posterior tongue and depress the soft palate","Protract the tongue by pulling its posterior part anteriorly only","Close the eyelids","Flex the forearm in all directions"],"answerIndex":1,"explanation":"腭舌肌上提舌後份並下降軟腭。","sourcePage":125},{"id":"MU10","topic":"Musculature","stem":"Platysma tenses the skin of the inferior face (with the teeth clenched), depresses the mandible, and:","options":["Elevates the eyebrows","Draws the corners of the mouth inferiorly (sadness) and can release pressure on superficial veins","Retracts the scapula","Extends the vertebral column bilaterally","Initiates abduction of the arm"],"answerIndex":1,"explanation":"闊頸肌繃緊面下部皮膚、下降下頜，並將口角向下拉（悲傷表情），亦可減輕淺靜脈壓力。","sourcePage":128},{"id":"MU11","topic":"Musculature","stem":"Sternocleidomastoid (SCM) is described as acting to:","options":["Protract the tongue","Tilt the head to the side, and flex and rotate the neck (and dip the head)","Elevate the first 15° of arm abduction","Evert the foot","Close the vocal folds"],"answerIndex":1,"explanation":"胸鎖乳突肌使頭向側傾斜，屈曲並旋轉頸部，亦可低頭。","sourcePage":128},{"id":"MU12","topic":"Musculature","stem":"Acting bilaterally, the splenius muscles:","options":["Flex the neck and rotate the head to the side","Extend the head and neck","Depress the ribs only","Protract the scapula","Flex the thigh at the hip"],"answerIndex":1,"explanation":"夾肌單側收縮時屈頸並使頭轉向同側；雙側收縮則伸頭、伸頸。","sourcePage":132},{"id":"MU13","topic":"Musculature","stem":"Acting bilaterally, erector spinae (sacrospinalis):","options":["Flex the vertebral column","Extend the vertebral column and head","Protract the mandible","Depress the hyoid only","Evert the foot"],"answerIndex":1,"explanation":"豎脊肌雙側收縮伸脊柱與頭；單側收縮則使脊柱側屈。","sourcePage":132},{"id":"MU14","topic":"Musculature","stem":"Multifidus is described as acting mainly to:","options":["Elevate the upper eyelid","Stabilize vertebrae during local movements of the vertebral column","Flex the forearm in the mid-pronated position","Close the eyes","Adduct the hand at the wrist"],"answerIndex":1,"explanation":"多裂肌在脊柱局部運動時穩定椎骨。迴旋肌則穩定椎骨並協助局部伸展與旋轉。","sourcePage":133},{"id":"MU15","topic":"Musculature","stem":"Quadratus lumborum is attached to the lumbar transverse processes, iliac crest and 12th rib. Acting bilaterally it:","options":["Elevates the ribs","Depresses the ribs","Protracts the scapula","Flexes the leg at the knee only","Opens the glottis"],"answerIndex":1,"explanation":"腰方肌雙側收縮下降肋骨；單側收縮使腰椎側屈。","sourcePage":134},{"id":"MU16","topic":"Musculature","stem":"The deep inguinal ring lies:","options":["Superolateral to the pubic tubercle","Superior to the middle of the inguinal ligament and lateral to the inferior epigastric vessels","Medial to the pubic symphysis only","At the adductor tubercle of the femur","In the posterior triangle of the neck"],"answerIndex":1,"explanation":"腹股溝管深環位於腹股溝韌帶中點上方，且在腹壁下血管外側。淺環則在恥骨結節的外上方。","sourcePage":143},{"id":"MU17","topic":"Musculature","stem":"The inguinal ligament stretches between which two bony landmarks?","options":["Ischial tuberosity and greater trochanter","Anterior superior iliac spine (ASIS) and pubic tubercle","Anterior inferior iliac spine and lesser trochanter","Pubic crest and iliac tuberosity","Posterior superior iliac spine and coccyx"],"answerIndex":1,"explanation":"腹股溝韌帶連接 ASIS 與恥骨結節。腹股溝管約 4 cm，平行且位於該韌帶內側半的上方。","sourcePage":143},{"id":"MU18","topic":"Musculature","stem":"According to the lecture, inguinal hernias are more common in males than females (about 9:1), and what percentage of inguinal hernias are indirect?","options":["25%","40%","50%","75%","95%"],"answerIndex":3,"explanation":"腹股溝疝男性多於女性（約 9:1），其中 75% 為斜疝（indirect）。","sourcePage":144},{"id":"MU19","topic":"Musculature","stem":"Complications of inguinal hernia listed in the lecture include compression of the testis (atrophy) and:","options":["Fracture of the pterion","Compression of vascular supply to gut (necrosis)","Wrist-drop","Anosmia","Patent ductus arteriosus"],"answerIndex":1,"explanation":"併發症包括睪丸受壓萎縮，以及腸道血供受壓導致壞死。男性疝內容物可進入陰囊；女性則突向大陰唇。","sourcePage":144},{"id":"MU20","topic":"Musculature","stem":"The rotator cuff (SITS) muscles are supraspinatus, infraspinatus, teres minor and subscapularis. Teres major is excluded because it:","options":["Has no attachment to the scapula","Does not attach to the capsule of the glenohumeral joint","Attaches only to the lesser tubercle","Is an axial muscle of the abdomen","Innervates the deltoid"],"answerIndex":1,"explanation":"大圓肌不附著於盂肱關節囊，故不列為旋轉袖肌群。","sourcePage":160},{"id":"MU21","topic":"Musculature","stem":"Supraspinatus initiates and assists deltoid in abducting the arm, especially during the first:","options":["5°","15°","45°","90°","180°"],"answerIndex":1,"explanation":"岡上肌起動並協助三角肌外展手臂，尤其是最初 15°。","sourcePage":159},{"id":"MU22","topic":"Musculature","stem":"Subscapularis runs from the subscapular fossa to the lesser tubercle and acts to:","options":["Laterally rotate the arm only","Medially rotate and adduct the arm, and hold the humeral head in the glenoid cavity","Initiate the first 15° of abduction only","Retract the scapula","Flex the forearm in all directions"],"answerIndex":1,"explanation":"肩胛下肌使臂內旋並內收，同時將肱骨頭維持在關節盂內。","sourcePage":156},{"id":"MU23","topic":"Musculature","stem":"Infraspinatus and teres minor attach to the greater tubercle and act to:","options":["Medially rotate and adduct the arm","Laterally rotate the arm and hold the humeral head in the glenoid cavity","Protract the scapula against the thoracic wall","Flex the thigh at the hip","Depress the hyoid bone"],"answerIndex":1,"explanation":"岡下肌與小圓肌使臂外旋，並將肱骨頭維持在關節盂內。","sourcePage":158},{"id":"MU24","topic":"Musculature","stem":"The middle fibres of deltoid act to:","options":["Flex and medially rotate the arm","Abduct the arm","Extend and laterally rotate the arm","Retract the scapula","Pronate the forearm"],"answerIndex":1,"explanation":"三角肌前份屈並內旋臂，中份外展臂，後份伸並外旋臂。","sourcePage":161},{"id":"MU25","topic":"Musculature","stem":"The middle fibres of trapezius act to:","options":["Elevate the scapula","Retract the scapula","Depress the scapula","Protract the scapula","Flex the forearm"],"answerIndex":1,"explanation":"斜方肌上份上提肩胛，中份後縮肩胛，下份下降肩胛；上、下份共同使關節盂向上旋轉。","sourcePage":163},{"id":"MU26","topic":"Musculature","stem":"Serratus anterior protracts the scapula, holds it against the thoracic wall, and rotates the scapula so that the glenoid cavity moves:","options":["Inferiorly","Superiorly (upward rotation)","Only medially without rotation","Toward the vertebral spines only","Into the axilla"],"answerIndex":1,"explanation":"前鋸肌使肩胛骨前伸並貼緊胸壁，並向上旋轉（關節盂朝上）。","sourcePage":152},{"id":"MU27","topic":"Musculature","stem":"Latissimus dorsi extends, adducts and medially rotates the humerus, and also:","options":["Initiates the first 15° of abduction","Raises the body toward the arms during climbing","Supinates the forearm from a flexed position only","Everts the foot","Tenses the vocal folds"],"answerIndex":1,"explanation":"背闊肌伸、內收並內旋肱骨，攀爬時可將身體拉向手臂。","sourcePage":164},{"id":"MU28","topic":"Musculature","stem":"Biceps brachii supinates the forearm and flexes the forearm when it is:","options":["Fully pronated only","In the supinated mode","In mid-pronation only, like brachioradialis","Independently of forearm position, like brachialis","Plantaflexed"],"answerIndex":1,"explanation":"肱二頭肌使前臂旋後，並在旋後位屈曲前臂；短頭還可防止肩關節脫位。","sourcePage":168},{"id":"MU29","topic":"Musculature","stem":"Brachialis is described as acting to:","options":["Supinate the forearm from a flexed position","Flex the forearm in all directions","Extend the forearm","Pronate the forearm and bind the radius to the ulna","Abduct the hand at the wrist"],"answerIndex":1,"explanation":"肱肌可在任何前臂位置屈曲前臂。","sourcePage":168},{"id":"MU30","topic":"Musculature","stem":"Brachioradialis is a weak flexor of the forearm at the mid-pronated position, and is notable because it is:","options":["The only flexor that lies in the posterior (extensor) compartment","The chief extensor of the elbow","A thenar muscle of the thumb","Part of the rotator cuff","An infrahyoid muscle"],"answerIndex":0,"explanation":"肱橈肌是唯一位於後側／伸肌區的屈肌。","sourcePage":170},{"id":"MU31","topic":"Musculature","stem":"Lateral epicondylitis (tennis elbow) is associated with repeated use of the:","options":["Superficial flexor muscles of the forearm, with pain over the medial epicondyle","Superficial extensor muscles of the forearm, with pain over the lateral epicondyle radiating down the posterior forearm","Rotator cuff only, with pain at the lesser tubercle","Hamstring muscles, with pain at the ischial tuberosity","Intrinsic muscles of the foot"],"answerIndex":1,"explanation":"網球肘來自反覆使用前臂淺層伸肌，疼痛在外上髁並沿前臂後面放射。投手肘則與淺層屈肌及內上髁炎症有關。","sourcePage":180},{"id":"MU32","topic":"Musculature","stem":"A positive Trendelenburg sign occurs when the gluteus medius and minimus on the weight-bearing side are paralyzed, so that:","options":["The pelvis stays perfectly level","The pelvis tilts to the unsupported side of the raised limb","The knee locks in hyperextension","The foot becomes permanently dorsiflexed","The scapula wings only on that side"],"answerIndex":1,"explanation":"單腿站立時，承重側的臀中肌與臀小肌本應收縮以維持骨盆水平；癱瘓時骨盆向抬腿（無支撐）側傾斜，即 Trendelenburg 徵陽性。","sourcePage":185},{"id":"MU33","topic":"Musculature","stem":"In piriformis syndrome, an inflamed, swollen piriformis may compress which nerve?","options":["Femoral nerve","Obturator nerve","Sciatic nerve","Median nerve","Phrenic nerve"],"answerIndex":2,"explanation":"梨狀肌腫脹可壓迫其下方的坐骨神經，造成從大腿後外側經小腿外側直至足趾的麻木，以及臀部疼痛。","sourcePage":186},{"id":"MU34","topic":"Musculature","stem":"Rectus femoris is nicknamed the “kicking muscle” because, in addition to extending the leg at the knee, it:","options":["Laterally rotates the thigh only","Assists iliopsoas to flex the thigh at the hip joint and steadies the hip","Plantarflexes the ankle independent of knee position","Everts the foot","Flexes only the distal phalanges of the lateral four toes"],"answerIndex":1,"explanation":"股直肌協助髂腰肌屈髖並穩定髖關節，同時伸膝，故有「踢球肌」之稱。四塊股四頭肌皆經髕韌帶止於脛骨粗隆以伸膝。","sourcePage":187},{"id":"MU35","topic":"Musculature","stem":"The femoral triangle is bounded superiorly by the inguinal ligament, medially by adductor longus, and laterally by:","options":["Gracilis","Sartorius","Biceps femoris","Gluteus maximus","Tibialis anterior"],"answerIndex":1,"explanation":"股三角上界為腹股溝韌帶，內側為長收肌，外側為縫匠肌；底為髂腰肌與恥骨肌；內容有股動脈、股靜脈與股神經。","sourcePage":191},{"id":"MU36","topic":"Musculature","stem":"Unlike gastrocnemius, soleus can plantarflex the ankle:","options":["Only when the knee is fully extended","Independent of the position of the knee, and it is described as a slow but stronger muscle acting with gastrocnemius","Only when the foot is everted","Only during dorsiflexion of the great toe","By inverting the foot and never plantarflexing"],"answerIndex":1,"explanation":"比目魚肌可在任何膝關節位置蹠屈踝關節，並穩定小腿於足上；它是較慢但較有力的肌肉，與腓腸肌協同。腓腸肌則在伸膝時蹠屈踝，並可屈膝。","sourcePage":197},{"id":"MU37","topic":"Musculature","stem":"Flexor hallucis longus flexes the great toe, weakly plantarflexes the ankle, supports the medial longitudinal arch, and is described as the powerful:","options":["“Kicking muscle” of the thigh","“Push-off” muscle during walking, running and jumping","Chief everter of the foot","Only dorsiflexor of the ankle","Main invertor that cannot flex the toe"],"answerIndex":1,"explanation":"踇長屈肌是行走、跑步與跳躍時有力的「蹬離」肌肉。","sourcePage":198},{"id":"MU38","topic":"Musculature","stem":"Fibularis (peroneus) longus and brevis act mainly to:","options":["Invert the foot and dorsiflex the ankle","Evert the foot and weakly plantarflex the ankle","Flex the great toe and support the medial arch only","Extend the lateral four digits","Flex the thigh at the hip"],"answerIndex":1,"explanation":"腓骨長肌與短肌使足外翻，並可輕度蹠屈踝關節。","sourcePage":195},{"id":"MU39","topic":"Musculature","stem":"Tibialis anterior acts to:","options":["Evert the foot and plantarflex the ankle","Dorsiflex the ankle and invert the foot","Flex the lateral four digits","Laterally rotate the thigh","Tense the palmar aponeurosis"],"answerIndex":1,"explanation":"脛骨前肌使踝背屈並使足內翻。","sourcePage":193},{"id":"MU40","topic":"Musculature","stem":"The hamstring part of adductor magnus (from the ischial tuberosity to the adductor tubercle) acts to:","options":["Flex the thigh, like the adductor (superior) part","Extend the thigh","Dorsiflex the ankle","Abduct the arm","Protract the mandible"],"answerIndex":1,"explanation":"大收肌兩部皆內收大腿；收肌（上部）屈大腿，腿後腱（下部）伸大腿。","sourcePage":189},{"id":"HT01","topic":"Heart & Circulation","stem":"The fibrous pericardium is bound to the central tendon of the diaphragm by the pericardiacophrenic ligament. A key function of the fibrous pericardium is to:","options":["Secrete CSF into the pericardial cavity","Protect the heart against sudden overfilling","Form the mitral valve cusps","Generate the pacemaker potential of the SA node","Carry the anterior interventricular artery"],"answerIndex":1,"explanation":"纖維心包並以胸骨心包韌帶連於胸骨，其功能是防止心臟突然過度充盈。","sourcePage":200},{"id":"HT02","topic":"Heart & Circulation","stem":"The visceral pericardium is the same as the:","options":["Endocardium","Myocardium","Epicardium","Fibrous pericardium alone, unfused with any serous layer","Coronary sinus"],"answerIndex":2,"explanation":"臟層心包即心外膜（epicardium），覆蓋心肌與心內膜之外，並延續至大血管。心包腔分隔纖維心包＋壁層心包與臟層心包。","sourcePage":201},{"id":"HT03","topic":"Heart & Circulation","stem":"The base of the heart (posterior and superior aspect) is formed mainly by the:","options":["Right ventricle","Left ventricle only","Left atrium (and the sinus venosus)","Pulmonary trunk alone","Apex of the left ventricle"],"answerIndex":2,"explanation":"心底主要由左心房構成（並包括腔靜脈竇）。心尖則是左心室的下外側部，此處可觸及最強心尖搏動。","sourcePage":202},{"id":"HT04","topic":"Heart & Circulation","stem":"The anterior (sternocostal) surface of the heart is formed mainly by the:","options":["Left atrium","Right ventricle","Left auricle only","Coronary sinus","Ascending aorta"],"answerIndex":1,"explanation":"前面（胸骨肋面）主要由右心室構成；下面（膈面）主要由左心室構成；左面（肺面）主要由左心室構成。","sourcePage":203},{"id":"HT05","topic":"Heart & Circulation","stem":"The right atrium receives venous blood from the superior vena cava, the inferior vena cava and the:","options":["Pulmonary veins","Coronary sinus","Hepatic portal vein","Great saphenous vein directly","Cephalic vein directly"],"answerIndex":1,"explanation":"右心房接收上、下腔靜脈與冠狀竇的靜脈血。貧氧血再經右房室口進入右心室。","sourcePage":207},{"id":"HT06","topic":"Heart & Circulation","stem":"The fossa ovalis of the interatrial septum is the remnant of the fetal:","options":["Ductus arteriosus","Ductus venosus","Oval foramen (foramen ovale) and its valves","Umbilical arteries","Ligamentum teres of the liver"],"answerIndex":2,"explanation":"卵圓窩是胎兒卵圓孔及其瓣膜的遺跡。","sourcePage":208},{"id":"HT07","topic":"Heart & Circulation","stem":"The SA node is located at the superior end of the:","options":["Interventricular septum","Sulcus terminalis","Conus arteriosus","Coronary sinus ostium only, with no nearby groove","Aortic vestibule"],"answerIndex":1,"explanation":"界溝（sulcus terminalis，外表淺垂直溝）與界嵴（crista terminalis）分隔心房壁的光滑部與粗糙部；竇房結位於界溝上端。","sourcePage":208},{"id":"HT08","topic":"Heart & Circulation","stem":"The moderator band (part of the conducting fibres) connects the inferior part of the interventricular septum to the:","options":["Posterior papillary muscle of the mitral valve","Anterior papillary muscle of the tricuspid valve","Aortic valve cusps","SA node","Left auricle"],"answerIndex":1,"explanation":"調節帶連至三尖瓣前乳頭肌，使其幾乎在心室完全收縮前即收縮，以免房室瓣被吸入右心房。","sourcePage":212},{"id":"HT09","topic":"Heart & Circulation","stem":"The tendinous cords (chordae tendineae) of the tricuspid valve prevent the cusps from being driven into the right atrium during:","options":["Atrial filling in mid-diastole only","Ventricular contraction (systole)","Opening of the pulmonary valve in diastole","Closure of the aortic valve only in late systole","Fetal flow through the foramen ovale"],"answerIndex":1,"explanation":"腱索附於前、後、隔側瓣的遊離緣與心室面，在收縮期抵抗張力，防止瓣葉翻入右心房。","sourcePage":211},{"id":"HT10","topic":"Heart & Circulation","stem":"Ventricular septal defect (VSD) most often occurs in which part of the interventricular septum, and is described as:","options":["The muscular part; the rarest of all cardiac defects","The membranous part; the most frequent among all cardiac defects","The conus arteriosus only; always closing before birth","The fossa ovalis; causing a right-to-left shunt only","The coronary sinus; never affecting pulmonary flow"],"answerIndex":1,"explanation":"VSD 最常發生於膜部，是最常見的心臟缺損。可造成左向右分流、肺血流增加、肺動脈高壓，進而心臟衰竭。肌部 VSD 較少，童年或可自行關閉。","sourcePage":216},{"id":"HT11","topic":"Heart & Circulation","stem":"Atrioventricular (tricuspid and mitral) valves prevent backflow of blood during:","options":["Diastole","Systole","Only the first 0.02 s of atrial systole","Only fetal life","Only when the moderator band is absent"],"answerIndex":1,"explanation":"房室瓣防止收縮期血液逆流；肺動脈瓣與主動脈瓣則防止舒張期逆流。","sourcePage":217},{"id":"HT12","topic":"Heart & Circulation","stem":"In the fetus, highly oxygenated blood returns from the placenta via a single umbilical vein and largely bypasses the liver through the:","options":["Ductus arteriosus","Ductus venosus, then enters the right atrium through the inferior vena cava","Foramen ovale directly from the pulmonary veins","Two umbilical arteries","Ligamentum arteriosus"],"answerIndex":1,"explanation":"胎盤氧合血經一條臍靜脈回流，大部分經靜脈導管繞過肝臟，再經下腔靜脈進入右心房。","sourcePage":220},{"id":"HT13","topic":"Heart & Circulation","stem":"In fetal circulation, blood from the inferior vena cava is directed into the left atrium through the:","options":["Ductus arteriosus","Foramen ovale","Coronary sinus","Pulmonary veins","Aortic valve"],"answerIndex":1,"explanation":"下腔靜脈的血被導向經卵圓孔進入左心房。因肺未發育且微血管受壓，進入肺動脈幹的血很少（\u003c12%）。","sourcePage":220},{"id":"HT14","topic":"Heart & Circulation","stem":"Most deoxygenated fetal blood pumped into the pulmonary artery reaches the descending aorta via the:","options":["Foramen ovale","Ductus venosus","Ductus arteriosus","Coronary sinus","Hepatic portal vein"],"answerIndex":2,"explanation":"來自上腔靜脈的缺氧血進入右心室後泵入肺動脈，大部分經動脈導管進入降主動脈，再多經兩條臍動脈回胎盤。","sourcePage":221},{"id":"HT15","topic":"Heart & Circulation","stem":"Failure of the ductus arteriosus to close and form the ligamentum arteriosus produces:","options":["Ventricular septal defect of the muscular septum only","Patent ductus arteriosus, in which stress may shunt unoxygenated blood to the aorta and the infant may turn cyanotic","Atresia of the umbilical vein","Rupture of the middle meningeal artery","Atrial septal absence in every case"],"answerIndex":1,"explanation":"動脈導管未閉（patent ductus arteriosus）時，在洗澡熱量流失或進食影響通氣等壓力下，未充分氧合的血可分流至主動脈，嬰兒出現發紺。","sourcePage":222},{"id":"HT16","topic":"Heart & Circulation","stem":"The mouths (ostia) of the left and right coronary arteries lie in aortic sinuses located:","options":["Immediately below both atrioventricular valves","Right above the left and right aortic valve cusps; the posterior aortic valve has no aortic sinus or coronary opening above it","In the coronary sinus only","At the apex of the heart","In the wall of the pulmonary trunk"],"answerIndex":1,"explanation":"左、右主動脈竇位於左、右主動脈瓣上方，為冠狀動脈開口所在；後方的主動脈瓣上方沒有主動脈竇，也沒有冠狀動脈開口。","sourcePage":224},{"id":"HT17","topic":"Heart & Circulation","stem":"In 40% of people, the SA nodal branch arises not from the right coronary artery but from the:","options":["Anterior interventricular branch of the left coronary artery","Circumflex branch of the left coronary artery","Right marginal artery only in all people","Great cardiac vein","Posterior aortic sinus"],"answerIndex":1,"explanation":"約 40% 的人，竇房結支來自左冠狀動脈的旋支，而非右冠狀動脈。","sourcePage":225},{"id":"HT18","topic":"Heart & Circulation","stem":"The great cardiac vein is paired with which arterial vessels?","options":["The right coronary artery only","Part of the left circumflex branch and the anterior interventricular branch","The posterior interventricular branch only","The right marginal artery only","The bronchial arteries"],"answerIndex":1,"explanation":"心大靜脈與左旋支（部分）及前室間支伴行；心中靜脈與後室間支伴行；心小靜脈與右冠狀動脈伴行。","sourcePage":231},{"id":"HT19","topic":"Heart & Circulation","stem":"The left atrium forms most of the base of the heart and receives how many pulmonary veins (which have no valves)?","options":["Two (one from each lung)","Three","Four (two superior and two inferior) entering its posterior wall","Five, including a middle lobe vein in every person","One common pulmonary vein"],"answerIndex":2,"explanation":"左心房構成心底的大部分；左、右肺靜脈（無瓣膜）共四條（兩上兩下）進入其後壁。","sourcePage":214},{"id":"RS01","topic":"Respiratory System","stem":"The carina is the site of:","options":["Entry of the esophagus into the stomach","Bifurcation of the trachea","Opening of the nasolacrimal duct","The McBurney point","The pterion"],"answerIndex":1,"explanation":"隆嵴（carina）是氣管分叉處。","sourcePage":233},{"id":"RS02","topic":"Respiratory System","stem":"The lingula is a tongue-shaped extension of the superior lobe of the left lung, serving as an analog of the:","options":["Superior lobe of the right lung","Middle lobe of the right lung","Inferior lobe of the right lung","Cardiac notch of the right lung","Horizontal fissure of the left lung"],"answerIndex":1,"explanation":"舌葉（lingula）是左肺上葉的舌狀延伸，相當於右肺中葉的類比構造。","sourcePage":234},{"id":"RS03","topic":"Respiratory System","stem":"Functions of the nasal meatuses listed in the lecture include warming and moistening incoming air and:","options":["Producing surfactant","Bringing smell to olfactory receptors","Closing the glottis during swallowing","Secreting melatonin","Forming the vocal folds"],"answerIndex":1,"explanation":"鼻道功能：加溫濕潤吸入空氣，並將氣味帶至嗅覺受器。","sourcePage":235},{"id":"RS04","topic":"Respiratory System","stem":"The epiglottic cartilage is connected superiorly to the hyoid bone (facilitating its elevation) and inferiorly is anchored at its base to the:","options":["Cricoid cartilage","Thyroid cartilage","Arytenoid cartilage","Tracheal rings only","Sternal angle"],"answerIndex":1,"explanation":"會厭軟骨上方連於舌骨（利於上提），下方固定於甲狀軟骨。甲狀軟骨與環狀軟骨的關節共同保護聲門。","sourcePage":236},{"id":"RS05","topic":"Respiratory System","stem":"Thyroid cartilage is shield-shaped (from Greek “thyreos”) and forms the:","options":["Carina","Laryngeal prominence (Adam’s apple)","Vocal process of the arytenoid","Hilum of the lung","Lingula"],"answerIndex":1,"explanation":"甲狀軟骨呈盾形，構成喉結（laryngeal prominence）。環狀軟骨則像圖章戒指（signet ring, “krikoeides”）。","sourcePage":236},{"id":"RS06","topic":"Respiratory System","stem":"Vestibular folds are inelastic and cover the vestibular ligament in order to prevent foreign material from entering the glottis and to:","options":["Produce sound as the primary vocalizers","Protect the vocal cord","Form the tracheal cartilages","Create the horizontal fissure","Open the auditory tube"],"answerIndex":1,"explanation":"前庭襞無彈性，可防止異物進入聲門並保護聲帶。聲襞則彈性高，覆蓋聲韌帶以發聲。","sourcePage":237},{"id":"RS07","topic":"Respiratory System","stem":"Compared with the left primary bronchus, the right primary bronchus is:","options":["Narrower, longer and more horizontal","Wider, shorter and runs more vertically, so foreign objects more easily enter its branches","Equal in calibre but much longer","Posterior to the esophagus and thoracic aorta throughout its course","A segmental (tertiary) bronchus"],"answerIndex":1,"explanation":"右主支氣管較寬、較短、走勢較垂直，異物（如牙科操作中的牙碎片）較易落入。左主支氣管行經主動脈弓下方，在食管與胸主動脈前方。","sourcePage":238},{"id":"RS08","topic":"Respiratory System","stem":"Lobar bronchi are also called secondary bronchi, and segmental bronchi are also called:","options":["Primary bronchi","Tertiary bronchi","Tracheal cartilages","Alveolar ducts only","Main bronchi"],"answerIndex":1,"explanation":"葉支氣管＝二級支氣管；段支氣管＝三級支氣管。","sourcePage":238},{"id":"RS09","topic":"Respiratory System","stem":"The number of bronchopulmonary segments is given in the lecture as:","options":["8 on the right and 10 on the left","10 on the right and 8–9 on the left","5 on each side","12 on each side","3 on the right and 2 on the left"],"answerIndex":1,"explanation":"支氣管肺段：右肺 10，左肺 8–9（有時融合）。","sourcePage":241},{"id":"RS10","topic":"Respiratory System","stem":"The horizontal fissure of the lung parallels which rib?","options":["The 2nd rib","The 4th rib","The 7th rib","The 10th rib","The 12th rib"],"answerIndex":1,"explanation":"水平裂與第 4 肋平行。","sourcePage":244},{"id":"RS11","topic":"Respiratory System","stem":"A “bare area” created by deviation of the parietal pleura from the median plane is clinically important because it can:","options":["Block the carina","Enable cardiac puncture","Close the glottis automatically","Form the lingula of the right lung","Prevent any pleural effusion"],"answerIndex":1,"explanation":"壁胸膜偏離正中平面形成的「裸區」使心臟穿刺成為可能。胸膜滲出（肺積液）會在講義所示位置積聚。","sourcePage":244},{"id":"VS01","topic":"Arterial & Venous Systems","stem":"The brachiocephalic trunk arises from the aortic arch and divides into the:","options":["Left common carotid and left subclavian arteries","Right common carotid and right subclavian arteries","Hepatic, splenic and left gastric arteries","Right and left pulmonary arteries","Internal and external iliac arteries"],"answerIndex":1,"explanation":"頭臂幹起自主動脈弓，分為右頸總動脈與右鎖骨下動脈。","sourcePage":246},{"id":"VS02","topic":"Arterial & Venous Systems","stem":"The celiac trunk divides into which three arteries?","options":["Right common carotid, right subclavian and vertebral","Hepatic, splenic and left gastric arteries","Renal, gonadal and lumbar arteries","Superior mesenteric, inferior mesenteric and median sacral","Anterior tibial, posterior tibial and fibular"],"answerIndex":1,"explanation":"腹腔幹分為肝動脈、脾動脈與胃左動脈。講義亦指出多數動脈成對，例如左、右腎動脈與鎖骨下動脈。","sourcePage":246},{"id":"VS03","topic":"Arterial & Venous Systems","stem":"The pulmonary trunk is the main pulmonary artery and divides into the:","options":["Right and left pulmonary arteries","Right and left common carotid arteries","Hepatic and splenic arteries","Internal and external jugular veins","Anterior and posterior tibial arteries"],"answerIndex":0,"explanation":"肺動脈幹分為左、右肺動脈。","sourcePage":246},{"id":"VS04","topic":"Arterial & Venous Systems","stem":"Along the upper limb, the subclavian artery is described as changing name at the lateral border of the first rib, and then again at the:","options":["Medial epicondyle of the humerus","Inferior border of teres major","Surgical neck of the humerus only","Flexor retinaculum","Adductor hiatus"],"answerIndex":1,"explanation":"鎖骨下動脈在第 1 肋外側緣移行為腋動脈，再於大圓肌下緣移行為肱動脈。","sourcePage":250},{"id":"VS05","topic":"Arterial & Venous Systems","stem":"The superficial veins of the head collect into venous channels that drain into the:","options":["Azygos vein directly","External jugular vein","Inferior vena cava","Hepatic portal vein","Great saphenous vein"],"answerIndex":1,"explanation":"頭部淺靜脈匯入引流至頸外靜脈的管道。頸外與頸內靜脈在下頜角處有廣泛吻合，為面、頭皮與顱提供兩條引流路徑。","sourcePage":258},{"id":"VS06","topic":"Arterial & Venous Systems","stem":"The external jugular vein descends just deep to the skin on the anterior surface of sternocleidomastoid (covered by platysma) and, behind the clavicle, empties into the:","options":["Internal jugular vein only, with no other connection","Subclavian vein","Superior vena cava directly","Azygos vein","Femoral vein"],"answerIndex":1,"explanation":"頸外靜脈在鎖骨後方匯入鎖骨下靜脈。","sourcePage":258},{"id":"VS07","topic":"Arterial & Venous Systems","stem":"The inferior vena cava collects most venous blood from organs inferior to the diaphragm and is listed as receiving six major veins, including lumbar, gonadal, renal, suprarenal, hepatic and:","options":["Azygos veins","Phrenic veins","Cephalic veins","External jugular veins","Great saphenous veins directly at its origin"],"answerIndex":1,"explanation":"下腔靜脈收集腰靜脈、性腺靜脈、腎靜脈、腎上腺靜脈、肝靜脈與膈靜脈。這些腹膜後靜脈可吻合，即使一段下腔靜脈阻塞仍可分流。","sourcePage":262},{"id":"VS08","topic":"Arterial & Venous Systems","stem":"In the schematic venous return of the upper limb, the basilic and brachial veins drain toward the axillary vein, while a major superficial vein along the lateral side is the:","options":["Great saphenous vein","Cephalic vein","Small saphenous vein","Azygos vein","Portal vein"],"answerIndex":1,"explanation":"講義上肢靜脈示意圖包括貴要、尺、橈、頭、肱、腋、鎖骨下等靜脈，再匯向頭臂靜脈與上腔靜脈。頭靜脈是上肢重要的外側淺靜脈。","sourcePage":289},{"id":"VS09","topic":"Arterial & Venous Systems","stem":"In the schematic venous flow of the lower limb, the great and small saphenous veins are shown draining in relation to the popliteal and femoral veins. The small saphenous vein is closely related to the:","options":["Popliteal fossa / popliteal vein","External jugular vein","Portal triad","Coronary sinus","Superior sagittal sinus"],"answerIndex":0,"explanation":"下肢示意圖包括脛前、脛後、腓、小隱、大隱、膕、股與髂外靜脈。小隱靜脈與膕窩／膕靜脈相關（神經系統講義亦指出腓腸神經沿小隱靜脈走行）。","sourcePage":356},{"id":"UG01","topic":"Urogenital System","stem":"The apex of the urinary bladder points toward the superior edge of the pubic symphysis and is connected to the umbilicus by the:","options":["Medial umbilical ligament (remnant of the umbilical arteries)","Median umbilical ligament","Round ligament of the uterus","Ovarian ligament","Suspensory ligament of the ovary"],"answerIndex":1,"explanation":"膀胱尖經正中臍韌帶連至臍。腹前壁還可見外側臍襞（含腹壁下血管）與內側臍襞（胎兒臍動脈遺跡）。","sourcePage":269},{"id":"UG02","topic":"Urogenital System","stem":"The fundus (basis) of the bladder is the convex posterior wall. In the male it is adjacent to the rectum; in the female it is adjacent to the:","options":["Anterior wall of the vagina","Posterior wall of the rectum only","Fundus of the uterus only, never the vagina","Perineal membrane alone","Labia majora"],"answerIndex":0,"explanation":"膀胱底在男性鄰近直腸，在女性鄰近陰道前壁。頸部位於內尿道口；三角由內尿道口與兩個輸尿管口構成。","sourcePage":269},{"id":"UG03","topic":"Urogenital System","stem":"An internal sphincter at the internal urethral orifice is described as being present:","options":["In both sexes equally, as a voluntary muscle","In the male (involuntary opening, continuous with the prostate) but not in the female","Only in the female","Only in the ureteric orifices","As a skeletal muscle supplied solely by the phrenic nerve"],"answerIndex":1,"explanation":"男性有不隨意的內括約肌（與前列腺相續）；女性則沒有內括約肌。","sourcePage":270},{"id":"UG04","topic":"Urogenital System","stem":"A full bladder exerts pressure on the walls of the ureters, which helps to:","options":["Force urine back into the kidneys for concentration","Prevent backflow of urine up the ureters (though excessive retention may still cause backflow and renal intoxication)","Open the internal sphincter in the female","Empty the seminal vesicles","Close the uterine tubes"],"answerIndex":1,"explanation":"充盈的膀胱壓迫輸尿管壁，防止尿液逆流；但過度滯留仍可能逆流並引起腎中毒。","sourcePage":270},{"id":"UG05","topic":"Urogenital System","stem":"Emptying of the bladder is achieved mainly by contraction of the detrusor muscle. Parasympathetic fibres from the pelvic splanchnic nerves cause detrusor contraction and:","options":["Contraction of the internal sphincter in the male","Relaxation (inhibition) of the internal sphincter in the male, so urine flows to the urethra","Only sympathetic vasoconstriction of the kidney","Voluntary contraction of cremaster","Closure of the ureteric orifices only"],"answerIndex":1,"explanation":"骨盆內臟神經的副交感纖維使逼尿肌收縮，並抑制（放鬆）男性內括約肌，尿液流入尿道。交感由 T11–L2 調控（成人抑制排尿）。","sourcePage":272},{"id":"UG06","topic":"Urogenital System","stem":"The female urethra is short and is innervated mainly by the:","options":["Phrenic nerve (C3–C5)","Pudendal nerve (S2–S4)","Median nerve","Vagus nerve only","Iliohypogastric nerve alone"],"answerIndex":1,"explanation":"女性尿道短，由內尿道口行向後下至恥骨聯合水平的外尿道括約肌，主要由陰部神經（S2–S4）支配。男性尿道則受陰部神經與前列腺叢（自主神經）共同調控。","sourcePage":274},{"id":"UG07","topic":"Urogenital System","stem":"Cremaster produces up-and-down movement of the testis and is innervated by:","options":["S2–S4 only","L1–L2","Cranial nerve X","The pudendal nerve alone, with no lumbar supply","T11–L2 sympathetic fibres only"],"answerIndex":1,"explanation":"提睪肌由 L1–L2 支配。肉膜肌調節陰囊長度與大小（散熱），由 L1–L2 及 S2–S4 支配。","sourcePage":277},{"id":"UG08","topic":"Urogenital System","stem":"The lecture states that the penis has no muscle and is composed of how many cylindrical bodies of erectile cavernous tissue?","options":["One","Two","Three","Four","Five"],"answerIndex":2,"explanation":"陰莖沒有肌肉，由三條勃起海綿組織圓柱構成；由陰部神經（S2–S4）經陰莖背神經支配。","sourcePage":281},{"id":"UG09","topic":"Urogenital System","stem":"In the passage of sperm, the ejaculatory duct is formed after the ductus deferens (and its ampulla) joins secretions from the:","options":["Prostate alone, without any other gland","Seminal vesicle (alkaline pH)","Bulbourethral gland only","Epididymal head only","Dartos muscle"],"answerIndex":1,"explanation":"精子路徑：附睪 → 輸精管 → 精囊（鹼性）與輸精管壺腹 → 射精管 → 前列腺（精液約 20% 液體）並加上尿道球腺黏液。","sourcePage":278},{"id":"UG10","topic":"Urogenital System","stem":"The three parts of the male urethra listed in the lecture are the:","options":["Prostatic, membranous and spongy urethra","Spongy, penile and navicular urethra only, excluding the prostate","Pelvic, perineal and scrotal urethra","Internal, trigonal and external urethra","Prostatic urethra alone"],"answerIndex":0,"explanation":"男性尿道分為前列腺部、膜部與海綿體部。","sourcePage":280},{"id":"UG11","topic":"Urogenital System","stem":"Anteflexion is described as the normal position of the uterus, whereas the abnormal position is:","options":["Anteversion only, which the lecture calls abnormal","Retroflexion","A fully retroperitoneal uterus without ligaments","Descent through the inguinal canal after birth","Fusion with the bladder fundus"],"answerIndex":1,"explanation":"前屈（anteflexion）為正常子宮位置；後屈（retroflexion）為異常。宮頸外口相關檢查包括子宮頸抹片（診斷子宮頸癌）。","sourcePage":283},{"id":"UG12","topic":"Urogenital System","stem":"The uterosacral ligament runs from the sides of the cervix and the inferior uterine body to the middle of the sacrum, and is described as acting to:","options":["House the ovarian vessels and nerves","Maintain the anteflexion position","Carry the uterus through the inguinal canal to the labia majora","Form the trigone of the bladder","Close the cervical os during micturition"],"answerIndex":1,"explanation":"子宮骶韌帶維持子宮前屈。闊韌帶防止子宮側移；懸韌帶容納卵巢血管與神經；卵巢韌帶固定子宮。","sourcePage":284},{"id":"UG13","topic":"Urogenital System","stem":"The round ligament of the uterus runs from the point where the uterine tube enters the uterus to the labia majora, passing through the:","options":["Obturator foramen","Inguinal canal","Greater sciatic foramen","Omental bursa","Hypoglossal canal"],"answerIndex":1,"explanation":"子宮圓韌帶經腹股溝管至大陰唇，是胚胎引帶（gubernaculum）的遺跡，曾負責出生前卵巢／睪丸下降。","sourcePage":285},{"id":"UG14","topic":"Urogenital System","stem":"During migration of the female reproductive organ, the upper gubernaculum becomes the ovarian ligament, and the lower gubernaculum becomes the:","options":["Uterosacral ligament","Round ligament","Broad ligament","Median umbilical ligament","Suspensory ligament of the ovary"],"answerIndex":1,"explanation":"上段引帶將卵巢拉向骨盆，後來成為卵巢韌帶；下段經腹股溝管至大陰唇，後來成為圓韌帶。","sourcePage":287},{"id":"UG15","topic":"Urogenital System","stem":"The median umbilical fold covers the remnant of the fetal:","options":["Umbilical arteries","Urachus","Gubernaculum","Ductus arteriosus","Foramen ovale"],"answerIndex":1,"explanation":"正中臍襞覆蓋胎兒尿囊管（urachus）的遺跡。內側臍襞覆蓋胎兒臍動脈遺跡；外側臍襞含腹壁下血管。","sourcePage":268},{"id":"DG01","topic":"Digestive System","stem":"The peritoneal cavity in the female differs from that in the male because in the female it is:","options":["A completely closed chamber","Opened through the uterine tubes, uterus and vagina","Absent, because there is no peritoneum in the female pelvis","Lined only by parietal peritoneum, with no visceral layer","Continuous with the pleural cavities"],"answerIndex":1,"explanation":"壁腹膜襯腹壁，臟腹膜襯器官，腹膜液起潤滑作用。男性腹膜腔為封閉腔；女性則經輸卵管、子宮與陰道與外界相通。","sourcePage":292},{"id":"DG02","topic":"Digestive System","stem":"The greater omentum is also called the gastrocolic ligament. It is a 4-layer peritoneum that hangs like an apron from the greater curvature of the stomach and then folds back to attach to the:","options":["Lesser curvature and the liver only","Anterior surface of the transverse colon and its mesentery","Root of the mesentery of the jejunum only","Bare area of the liver","Anterior abdominal wall at the umbilicus"],"answerIndex":1,"explanation":"大網膜（胃結腸韌帶）呈四層，自大彎（及近端十二指腸）如圍裙下垂，返折後附於橫結腸前面及其系膜。","sourcePage":294},{"id":"DG03","topic":"Digestive System","stem":"The lesser omentum (gastrohepatic ligament) connects the lesser curvature of the stomach (and proximal duodenum) to the:","options":["Transverse colon","Liver","Spleen only","Anterior abdominal wall","Urinary bladder"],"answerIndex":1,"explanation":"小網膜連接胃小彎（及近端十二指腸）與肝。","sourcePage":295},{"id":"DG04","topic":"Digestive System","stem":"The free edge of the lesser omentum (hepatoduodenal ligament) covers the portal triad, which consists of the hepatic artery, the common bile duct and the:","options":["Hepatic vein","Hepatic portal vein","Inferior vena cava","Splenic artery only","Cystic duct only"],"answerIndex":1,"explanation":"小網膜游離緣（肝十二指腸韌帶）包繞門脈三聯：肝動脈、膽總管與肝門靜脈。","sourcePage":296},{"id":"DG05","topic":"Digestive System","stem":"Perforation of the stomach wall or an inflamed pancreas may allow fluid into the omental bursa, causing:","options":["Pterion hematoma","Bursitis","Carpal tunnel syndrome","Trendelenburg sign","Wrist-drop"],"answerIndex":1,"explanation":"胃壁穿孔或胰腺炎時，胃液或胰液可進入網膜囊引起滑囊炎（bursitis）。","sourcePage":296},{"id":"DG06","topic":"Digestive System","stem":"One listed function of the mesentery is to move to an inflamed area of gut (for example in appendicitis) and wrap around the organ to wall it off — a role nicknamed:","options":["“Bare area of the abdomen”","“Policement of the abdomen”","“Moderator band of the gut”","“Dinner fork of the mesentery”","“Circle of Willis of the gut”"],"answerIndex":1,"explanation":"腸系膜可防止臟腹膜黏連壁腹膜、包裹炎症器官（「腹腔的警察」）、緩衝外傷並隔熱。","sourcePage":297},{"id":"DG07","topic":"Digestive System","stem":"Functions of the tongue listed in the lecture include mastication, taste, deglutition (swallowing) and:","options":["Production of bile","Articulation (speech)","Secretion of intrinsic factor only","Formation of haustra","Absorption of vitamin B12"],"answerIndex":1,"explanation":"舌的功能：咀嚼、味覺、吞嚥與構音（言語）。","sourcePage":298},{"id":"DG08","topic":"Digestive System","stem":"The foramen cecum is a pit that is the remnant of the embryonic:","options":["Foramen ovale","Thyroglossal duct opening (connecting the tongue with the thyroid gland during development)","Urachus","Ductus venosus","Notochord"],"answerIndex":1,"explanation":"盲孔是胚胎甲狀舌管開口的遺跡，發育時連接舌與甲狀腺。","sourcePage":300},{"id":"DG09","topic":"Digestive System","stem":"Filiform papillae are numerous and thread-like, arranged in rows parallel to the sulcus terminalis, and their afferent endings are sensitive to:","options":["Only bitter tastants, not touch","Tactile force (touch); they are rough and used for licking semi-solid food","Light only","Blood pressure in the carotid sinus","Sound vibration"],"answerIndex":1,"explanation":"絲狀乳頭粗糙，用於舔半固態食物，傳入神經末梢對觸覺敏感。","sourcePage":301},{"id":"DG10","topic":"Digestive System","stem":"Circumvallate (vallate) papillae are large and flat-topped, lie anterior to the sulcus terminalis, and are surrounded by a deep trench that is filled by glandular watery secretion used for:","options":["Lubricating the vocal folds","Dissolving substances for tasting","Producing insulin","Forming enamel","Closing the nasopharynx"],"answerIndex":1,"explanation":"輪廓乳頭埋於黏膜中，周圍深溝內的腺體分泌水樣液以溶解物質，便於味覺。","sourcePage":303},{"id":"DG11","topic":"Digestive System","stem":"Lingual tonsils lie in the pharyngeal region of the tongue posterior to the sulcus terminalis (no papillae there). Abrupt stimulation of this region could induce:","options":["A sneeze only, never a gag","A gag or vomiting reflex","Extension of the great toe","Closure of the foramen ovale","Contraction of the detrusor only"],"answerIndex":1,"explanation":"輪廓乳頭後方的舌根區有舌扁桃體，突然刺激可引發作嘔或嘔吐反射。","sourcePage":304},{"id":"DG12","topic":"Digestive System","stem":"Pharyngeal tonsils are located in the nasopharynx and are described as helping to remove food that enters the nasal cavity by accident, by inducing:","options":["Peristalsis of the colon","Sneezing and coughing","Micturition","Lateral rotation of the thigh","Secretion of bile"],"answerIndex":1,"explanation":"咽扁桃體位於鼻咽，可誘發噴嚏與咳嗽以清除誤入鼻腔的食物。腭扁桃體則在口咽，刺激吞嚥受器。","sourcePage":306},{"id":"DG13","topic":"Digestive System","stem":"The hard palate is formed by the palatine process of the maxillary bone plus the:","options":["Perpendicular plate of the ethmoid only","Horizontal plate of the palatine bone","Vomer alone","Cribriform plate","Greater wing of the sphenoid"],"answerIndex":1,"explanation":"硬腭由上頜骨腭突與腭骨水平板構成。門齒孔位於中切牙後方，供鼻腭神經與動脈通過。","sourcePage":308},{"id":"DG14","topic":"Digestive System","stem":"During swallowing, the soft palate moves upward and blocks the nasopharynx through contraction of tensor veli palatini and:","options":["Masseter only","Levator veli palatini","Buccinator only","Soleus","Supraspinatus"],"answerIndex":1,"explanation":"吞嚥時，腭帆張肌與腭帆提肌收縮，使軟腭上提並封閉鼻咽；隨後腭咽肌與莖突咽肌上提咽腔，最後上、中、下咽縮肌協調收縮將食團推入食管。","sourcePage":312},{"id":"DG15","topic":"Digestive System","stem":"The parotid gland is the largest salivary gland; its duct empties into the vestibule around the:","options":["Sublingual caruncle beside the frenulum","Second molar","Incisive foramen","Foramen cecum","Palatine tonsil"],"answerIndex":1,"explanation":"腮腺最大，位於下頜與胸鎖乳突肌附近；腮腺管開口於約第二臼齒處的前庭。","sourcePage":313},{"id":"DG16","topic":"Digestive System","stem":"The sublingual gland is the smallest and most deeply located salivary gland. It is drained by 10–12 small ducts that open into sublingual folds along the sides of the:","options":["Parotid duct","Lingual frenulum","Uvula","Epiglottis","Cricoid cartilage"],"answerIndex":1,"explanation":"舌下腺呈杏仁形，位於口腔底、下頜與頦舌肌之間，在舌繫帶周圍連成馬蹄形，由 10–12 條小管沿舌下襞開口。","sourcePage":315},{"id":"DG17","topic":"Digestive System","stem":"Non-anatomical constrictions of a fully distended esophagus include the entrance (UES, caused by cricopharyngeus), crossing of the aortic arch, crossing of the left bronchus, and:","options":["Crossing of the right renal artery","Piercing through the diaphragm (LES)","The pyloric sphincter","The ileocecal valve","The hepatopancreatic ampulla"],"answerIndex":1,"explanation":"四處壓跡對上消化道內視鏡很重要，以免損傷。UES 由環咽肌造成；LES 在食管穿膈處。","sourcePage":317},{"id":"DG18","topic":"Digestive System","stem":"GERD is attributed to loss of muscle tone of the lower esophageal sphincter. Unlike the stomach, the esophagus:","options":["Has a thicker mucus barrier than the stomach","Lacks the protective ability against irritation, and GERD is associated with increased esophageal cancer incidence","Cannot be reached by refluxed acid","Is lined by parietal peritoneum throughout","Contains teniae coli"],"answerIndex":1,"explanation":"LES 張力喪失使胃內容物（含酸）反流；食管缺乏胃的保護能力。成因包括吸煙、高脂食物、起司、巧克力、酒精、咖啡、碳酸飲料與阿司匹林。","sourcePage":318},{"id":"DG19","topic":"Digestive System","stem":"The duodenum is a U-shaped loop about 25 cm long around the pancreas, and has four parts:","options":["Cardiac, fundic, body and pyloric","Superior, descending, horizontal and ascending","Cecal, colic, sigmoid and rectal","Oral, pharyngeal, laryngeal and tracheal","Cervical, thoracic, abdominal and pelvic"],"answerIndex":1,"explanation":"十二指腸呈 U 形環繞胰腺，約 25 cm，分上、降、水平與升四部，並有膽管與胰管開口。","sourcePage":322},{"id":"DG20","topic":"Digestive System","stem":"Bile and pancreatic ducts enter the descending (2nd) part of the duodenum, unite as the hepatopancreatic ampulla, and exit at the major duodenal papilla (Vater), which is:","options":["In the superior (1st) part only","About 8–10 cm from the pylorus, at about two-thirds of the way along the posteromedial wall of the 2nd part","At the duodenojejunal flexure","In the terminal ileum","At the McBurney point"],"answerIndex":1,"explanation":"兩管在降部約 2/3 處的後內側壁匯合成肝胰壺腹，開口於距幽門約 8–10 cm 的十二指腸大乳頭。開口由 Oddi 括約肌調控。","sourcePage":324},{"id":"DG21","topic":"Digestive System","stem":"Compared with the ileum, the jejunum (around the umbilical region) is usually empty and is:","options":["Thinner and less vascular","Thicker and more vascular","Suspended only in the pelvic cavity","Separated from the duodenum by a valve","The site of the ileocecal valve"],"answerIndex":1,"explanation":"空腸約占小腸長度 33–40%，通常較空，比迴腸更厚、血管更豐富。十二指腸–空腸交界為十二指腸空腸曲（無瓣膜）；迴腸–盲腸交界有迴盲瓣。","sourcePage":329},{"id":"DG22","topic":"Digestive System","stem":"Key characteristics of the large intestine listed in the lecture include teniae coli, haustra and:","options":["Peyer patches only","Appendices epiploicae (epiploic appendages) — small pouches of fat-filled peritoneum","Plicae circulares as the sole surface feature","A continuous mesenteric attachment on every segment, including the rectum","Vocal folds"],"answerIndex":1,"explanation":"大腸特徵：結腸帶（三條增厚縱肌）、結腸袋，以及腸脂垂（充滿脂肪的腹膜小袋）。","sourcePage":333},{"id":"DG23","topic":"Digestive System","stem":"McBurney’s point, used in the clinical examination of appendicitis, lies at:","options":["The midpoint of the inguinal ligament","One-third of the length from the anterior superior iliac spine to the umbilicus","The tip of the xiphoid process","The sternal angle","The mid-inguinal point over the femoral artery only"],"answerIndex":1,"explanation":"McBurney 點為闌尾根部，位於髂前上棘至臍連線的外側 1/3 處；指壓壓痛提示急性闌尾炎。疼痛可自腹上區起，在臍周加劇，並定位於右下腹。","sourcePage":338},{"id":"DG24","topic":"Digestive System","stem":"More than 60% of appendices lie posterior to the cecum in the retrocecal recess. When the appendix hangs in the pelvis (about 32%), appendectomy is dangerous because of possible damage to the:","options":["Spleen and left kidney only","Ovary (in the female) or the ureters (in both sexes)","Gallbladder only","Left colic flexure","Parotid duct"],"answerIndex":1,"explanation":"盆位闌尾靠近女性生殖器官及兩性的輸尿管，切除時可能誤傷卵巢或輸尿管。闌尾平均長約 8 cm，在兒童較長，具淋巴免疫功能。","sourcePage":336},{"id":"DG25","topic":"Digestive System","stem":"The transverse colon is the longest and most movable part of the large intestine. The left colic flexure is higher than the right because it is attached to the diaphragm by the:","options":["Falciform ligament","Phrenicocolic ligament","Round ligament of the uterus","Hepatoduodenal ligament","Median umbilical ligament"],"answerIndex":1,"explanation":"橫結腸有系膜，最長且最活動；膈結腸韌帶將左結腸曲連於膈，故左曲高於右曲。","sourcePage":340},{"id":"DG26","topic":"Digestive System","stem":"The internal anal sphincter occupies the superior two-thirds of the anal canal, is not contracted voluntarily, and relaxes upon stimulation of the:","options":["Sympathetic nervous system only, causing voluntary tightening","Parasympathetic nervous system, while downward movement of feces is then restrained by the external anal sphincter","Phrenic nerve","Median nerve","Olfactory nerve"],"answerIndex":1,"explanation":"內括約肌不隨意，副交感刺激使其放鬆；糞便下移仍受外括約肌約束。外括約肌占下 2/3，可隨意收縮，並與內括約肌及肛提肌纖維重疊。","sourcePage":346},{"id":"DG27","topic":"Digestive System","stem":"The liver has a “double” blood supply: about 30% oxygenated blood via the hepatic arteries (from the celiac trunk) and about 70% venous blood with absorbed digestive products via the:","options":["Hepatic veins from the IVC backward into the liver","Hepatic portal vein (via the superior mesenteric and splenic veins)","Azygos vein","Inferior rectal veins only","Coronary sinus"],"answerIndex":1,"explanation":"肝動脈提供約 30% 含氧血；肝門靜脈提供約 70% 來自胃腸的靜脈血。血液經小葉中央靜脈 → 肝靜脈 → 下腔靜脈。","sourcePage":354},{"id":"DG28","topic":"Digestive System","stem":"Ligamentum teres (the round ligament of the liver) is a remnant of the:","options":["Ductus arteriosus","Umbilical vein, continued from the free edge of the falciform ligament","Urachus","Gubernaculum","Thyroglossal duct"],"answerIndex":1,"explanation":"肝圓韌帶是臍靜脈遺跡，續於鐮狀韌帶游離緣。鐮狀韌帶分隔左、右葉並連於膈與腹前壁。","sourcePage":353},{"id":"NS01","topic":"Nervous System","stem":"The brachial plexus is formed by the union of the anterior primary rami of:","options":["C1–C4","C5–C8 and T1","T12 and L1–L4 only","L4–S3","S2–S4 only"],"answerIndex":1,"explanation":"臂叢由 C5–C8 與 T1 前支連合形成，是上肢的主要神經網。三幹：上幹（C5、C6）、中幹（C7）、下幹（C8、T1）。","sourcePage":367},{"id":"NS02","topic":"Nervous System","stem":"The anterior divisions of the brachial plexus trunks form the lateral and medial cords, whereas the posterior divisions form the:","options":["Anterior cord","Posterior cord","Lumbar plexus","Celiac ganglion","Phrenic nerve only"],"answerIndex":1,"explanation":"幹在跨越第 1 肋時分為前、後股：前股形成外側束與內側束，後股形成後束。","sourcePage":367},{"id":"NS03","topic":"Nervous System","stem":"Musculocutaneous nerve (C5–C7) supplies motor innervation to anterior flexor muscles of the arm (biceps brachii and brachialis). Injury may cause weakness of elbow flexion against resistance and:","options":["Wrist-drop with unopposed flexion of the wrist","Diminished supination strength (biceps brachii)","Claw hand of the 4th and 5th digits only","Ape hand from thenar wasting alone","Foot-drop"],"answerIndex":1,"explanation":"肌皮神經感覺支配前臂外側皮膚（手部無分支）。損傷可見於肱骨頭壓迫、脫位或骨折。","sourcePage":370},{"id":"NS04","topic":"Nervous System","stem":"The median nerve enters the hand through the carpal tunnel. Carpal tunnel syndrome may cause tingling or numbness and loss of grasping motion of the thumb, a deformity called:","options":["Claw hand","Wrist-drop","Ape hand","Trendelenburg gait","Dinner fork deformity"],"answerIndex":2,"explanation":"正中神經感覺支配掌面及外側「三指半」遠端背側（含第 4 指外側半，不含拇指）。運動支配前臂屈肌（包括橈側腕屈肌與指深屈肌外側半）及魚際肌。腕管綜合徵可致「猿手」。","sourcePage":371},{"id":"NS05","topic":"Nervous System","stem":"Ulnar canal syndrome (compression between the pisiform and hamate) can produce loss of sensation in the 4th and 5th digits and weakening of intrinsic muscles, a pattern called:","options":["Ape hand","Claw hand, with hyperextension at the metacarpophalangeal joints and flexion at the proximal interphalangeal joints","Wrist-drop","Erb palsy only of the shoulder","Foot-drop"],"answerIndex":1,"explanation":"尺神經感覺支配內側「一指半」（含第 4 指內側半）。運動支配指深屈肌內側半、尺側腕屈肌、小魚際及多數手內在肌。尺管綜合徵可致「爪形手」。","sourcePage":372},{"id":"NS06","topic":"Nervous System","stem":"Radial nerve injury can paralyze the extensor muscles of the forearm so that the hand is flexed at the wrist, a deformity called:","options":["Ape hand","Claw hand","Wrist-drop, with the fingers remaining flexed at the metacarpophalangeal joints","Trendelenburg sign","Tennis elbow without nerve injury"],"answerIndex":2,"explanation":"橈神經運動支配臂與前臂所有後側伸肌（加上作為屈肌的肱橈肌），不支配手肌。感覺包括臂後及下外側、前臂與拇指背面、手背外側 2/3 等。","sourcePage":373},{"id":"NS07","topic":"Nervous System","stem":"The axillary nerve (C5, C6) supplies deltoid, teres minor and the glenohumeral joint. Injury (for example from humeral head dislocation or falling on an outstretched hand) especially impairs:","options":["Wrist extension and finger extension only","Abduction and external rotation of the shoulder","Flexion of the elbow against resistance only","Opposition of the thumb only","Dorsiflexion of the ankle"],"answerIndex":1,"explanation":"腋神經感覺支配臂上外側一小區皮膚（三角肌下部）。損傷導致肩部疼痛及活動受限，尤其是外展與外旋。","sourcePage":374},{"id":"NS08","topic":"Nervous System","stem":"The lumbar plexus lies in the posterior part of psoas major, anterior to the lumbar transverse processes, and is composed of the anterior rami of:","options":["C5–T1","T12 and L1–L4","L4–S3 only","S2–S4 only","Cranial nerves IX and X"],"answerIndex":1,"explanation":"腰叢由 T12、L1–L4 前支組成，直接支配大腿前面肌肉，並部分支配下腹壁。","sourcePage":375},{"id":"NS09","topic":"Nervous System","stem":"The femoral nerve (L2–L4) is the largest branch of the lumbar plexus. After entering the femoral triangle it supplies motor innervation to:","options":["The medial compartment (adductors) of the thigh","Muscles of the anterior thigh compartment (hip flexors and knee extensors)","All muscles of the posterior compartment of the thigh only","Fibularis longus and brevis only","The intrinsic muscles of the hand"],"answerIndex":1,"explanation":"股神經感覺支配大腿前內側皮膚，並有關節支至髖、膝關節。隱神經是其最長分支，感覺支配膝、小腿與足的前內側直至第 1 蹠骨頭。","sourcePage":378},{"id":"NS10","topic":"Nervous System","stem":"Obturator nerve (anterior division of L2–L4) enters the thigh via the obturator foramen and is the motor nerve of the:","options":["Anterior compartment of the leg","Medial compartment (adductors) of the thigh","Posterior compartment of the arm","Thenar eminence","Intrinsic muscles of the larynx"],"answerIndex":1,"explanation":"閉孔神經是腰叢在大骨盆內的主要神經，經閉孔入大腿後分為前、後支，支配內收肌群。","sourcePage":380},{"id":"NS11","topic":"Nervous System","stem":"The sciatic nerve (L4–S3) supplies all muscles of the posterior compartment of the thigh and, below the knee, the entire leg and foot via its tibial branch, except that the short head of biceps femoris is supplied by the:","options":["Femoral nerve","Obturator nerve","Common peroneal (fibular) branch","Pudendal nerve","Ilioinguinal nerve"],"answerIndex":2,"explanation":"坐骨神經不支配臀區肌肉、皮膚、會陰與盆膈。股二頭肌短頭由腓總神經支配。","sourcePage":382},{"id":"NS12","topic":"Nervous System","stem":"The sural nerve is formed by the union of the medial sural cutaneous nerve (from the tibial nerve) and the lateral sural cutaneous nerve (from the common peroneal nerve). Its course runs alongside the:","options":["Great saphenous vein only in the femoral triangle","Small saphenous vein","Cephalic vein","External jugular vein","Portal vein"],"answerIndex":1,"explanation":"腓腸神經沿小隱靜脈走行，感覺支配小腿遠端 1/3 後外側以及足、跟與踝的外側。","sourcePage":387},{"id":"NS13","topic":"Nervous System","stem":"The pudendal nerve (S2–S4) is the main nerve of the perineum and the chief sensory nerve of the external genitalia. It does not supply structures in the:","options":["Urethra or lower third of the vagina","Gluteal region or posterior thigh","Penis","Perineum","External genitalia"],"answerIndex":1,"explanation":"陰部神經不支配臀區或大腿後側；它有較大的副交感分支。","sourcePage":388},{"id":"NS14","topic":"Nervous System","stem":"Functions of cerebrospinal fluid (CSF) listed in the lecture include nourishment of CNS tissues, cushioning the brain, and:","options":["Production of melatonin in the pineal gland","Allowing ion transport and ionic exchange inside the CNS","Forming the blood–testis barrier","Closing the foramen ovale at birth","Secreting intrinsic factor"],"answerIndex":1,"explanation":"腦脊液提供營養、緩衝保護大腦，並容許中樞內的離子運輸與交換。","sourcePage":391},{"id":"NS15","topic":"Nervous System","stem":"CSF is formed by the choroid plexuses within the four ventricles (especially the 3rd and 4th) and is absorbed:","options":["Directly into the lymphatic trunks of the neck, bypassing the venous system","Through arachnoid granulations into the venous system (protrusions of arachnoid villi into walls of dural venous sinuses, such as the superior sagittal sinus)","Only by the choroid plexus of the lateral ventricles, never leaving the ventricles","Through the central canal into the pleural cavity","By the arachnoid granulations into the arterial circle of Willis"],"answerIndex":1,"explanation":"腦脊液由脈絡叢產生，進入蛛網膜下腔，再經蛛網膜顆粒吸收入靜脈系統（如上矢狀竇）。","sourcePage":393},{"id":"NS16","topic":"Nervous System","stem":"The diencephalon is listed as comprising the:","options":["Caudate, putamen and globus pallidus only","Epithalamus, thalamus and hypothalamus","Pons and cerebellum only","Midbrain, pons and medulla only","Frontal, parietal and occipital lobes"],"answerIndex":1,"explanation":"人腦分大腦、小腦、間腦（上丘腦、丘腦、下丘腦）與腦幹（中腦、腦橋、延髓）。","sourcePage":394},{"id":"NS17","topic":"Nervous System","stem":"Cardiovascular and respiratory rhythmicity centres, as well as a reticular formation that regulates vital ANS functions, are highlighted in the lecture under the:","options":["Cerebellar hemispheres","Medulla oblongata (reflex centres)","Corpus callosum","Cauda equina","Filum terminale only"],"answerIndex":1,"explanation":"延髓是脊髓的延續，負責腦與脊髓溝通、複雜自主反射協調及內臟功能控制。網狀結構自延髓延伸至中腦；並有心臟、血管運動與呼吸節律中樞。","sourcePage":397},{"id":"NS18","topic":"Nervous System","stem":"The superior colliculus integrates visual information (including input from the lateral geniculate nucleus) and initiates reflex responses to visual stimuli. The inferior colliculus relays auditory information to the:","options":["Lateral geniculate nucleus of the thalamus","Medial geniculate nucleus of the thalamus, and initiates reflex responses to auditory stimuli","Red nucleus only, with no thalamic relay","Olfactory bulb","Anterior nucleus of the thalamus only"],"answerIndex":1,"explanation":"下丘將來自內耳（經橄欖核）的聽覺訊息中繼至丘腦內側膝狀體，並發起對響聲等聽覺刺激的反射。","sourcePage":402},{"id":"NS19","topic":"Nervous System","stem":"The reticular activating system (RAS) is a specialized component of the reticular formation in the midbrain and is described as providing:","options":["Only spinal reflexes of the stretch type","Alertness and attentiveness (consciousness)","CSF absorption","Taste from the anterior two-thirds of the tongue","Motor innervation of the tongue muscles"],"answerIndex":1,"explanation":"RAS 提供警覺與注意力（意識）。大腦腳則傳送上行感覺至丘腦，以及下行至腦橋／小腦與脊髓的隨意運動訊號。","sourcePage":403},{"id":"NS20","topic":"Nervous System","stem":"Main functions of the cerebellum listed in the lecture include maintaining balance and equilibrium, and:","options":["Language production in Broca’s area","Programming and fine-tuning movements at conscious and subconscious levels","Secretion of melatonin","Primary detection of olfactory stimuli","Formation of CSF in the lateral ventricles only"],"answerIndex":1,"explanation":"小腦維持平衡（經腦幹運動中樞調節姿勢肌張力），並比較運動指令與本體感覺以微調動作。","sourcePage":409},{"id":"NS21","topic":"Nervous System","stem":"The vestibulocerebellum receives input from the vestibular labyrinth, maintains balance and controls head and eye movements, and projects its output to the:","options":["Red nucleus only","Vestibular nuclei","Caudate nucleus","Olfactory tract","Anterior horn of L5 only"],"answerIndex":1,"explanation":"前庭小腦接受前庭迷路輸入，維持平衡並控制頭眼運動，輸出至前庭核。脊髓小腦控制軀幹與肢體姿勢運動；大腦小腦參與運動計劃。","sourcePage":414},{"id":"NS22","topic":"Nervous System","stem":"Commissural fibres connect the two cerebral hemispheres and include the corpus callosum and the:","options":["Internal capsule only","Anterior commissure","Cerebral peduncles only","Falx cerebri, which is a fibre tract","Filum terminale"],"answerIndex":1,"explanation":"連合纖維連接兩半球（胼胝體與前連合）。聯絡纖維如縱束連接同半球各葉；投射纖維經內囊往返皮質與間腦、腦幹、小腦及脊髓。","sourcePage":416},{"id":"NS23","topic":"Nervous System","stem":"In hemispheric lateralization as presented in the lecture, the left hemisphere is associated with language-based activities, analytical tasks (for example maths and sciences) and:","options":["Left limb movement","Right limb movement","Recognition of familiar objects only, without language","Analysis of emotional context only","Three-dimensional relationships only"],"answerIndex":1,"explanation":"左半球：語言與一般解釋／言語中樞、分析性工作，並支配右側肢體。右半球：分析感覺與情緒脈絡、辨認熟悉物體與三維關係，並支配左側肢體。","sourcePage":417},{"id":"NS24","topic":"Nervous System","stem":"Injury to Wernicke’s area (general interpretive area, primarily in the left hemisphere) may cause:","options":["Making meaningless sound but not words (a Broca pattern)","Failure to interpret observed or heard information (for example words or letters)","Inability to estimate only temporal relationships, with intact language comprehension","Isolated anosmia","Wrist-drop"],"answerIndex":1,"explanation":"Wernicke 區整合各感覺聯絡區的訊息，對人格及複雜視聽記憶的提取很重要；損傷導致無法理解所見或所聞的資訊。","sourcePage":428},{"id":"NS25","topic":"Nervous System","stem":"Injury to Broca’s area (motor speech area, along the premotor cortex in the left hemisphere) may result in:","options":["Failure to interpret heard words, with fluent meaningful speech","Making meaningless sound but not words","Complete bilateral hearing loss only","Paralysis of the lower limb extensors only","Loss of smell"],"answerIndex":1,"explanation":"Broca 區調節呼吸與發聲肌模式以產生正常言語；損傷時可發出無意義聲音但無法成詞。","sourcePage":429},{"id":"NS26","topic":"Nervous System","stem":"The cerebral falx (falx cerebri) occupies the longitudinal fissure and separates the:","options":["Occipital lobes from the cerebellum","Two cerebral hemispheres","Two cerebellar hemispheres completely in every person","Thalamus from the hypothalamus","Pons from the medulla"],"answerIndex":1,"explanation":"大腦鐮分隔兩大腦半球。小腦幕分隔枕葉與小腦；小腦鐮部分分隔兩小腦半球。","sourcePage":433},{"id":"NS27","topic":"Nervous System","stem":"The cerebral arterial circle of Willis includes the anterior cerebral, anterior communicating, middle cerebral, posterior cerebral and:","options":["Superior sagittal sinus","Posterior communicating arteries (and is related to the internal carotid arteries)","Great saphenous veins","Azygos artery","Celiac trunk"],"answerIndex":1,"explanation":"Willis 環包括大腦前動脈、前交通動脈、大腦中動脈、大腦後動脈與後交通動脈（並與頸內動脈相關）。椎動脈分支則有小腦上、前下與後下動脈。","sourcePage":435},{"id":"AN01","topic":"Autonomic Nervous System","stem":"The sympathetic division is the thoracolumbar division: preganglionic fibres arise from thoracic and superior lumbar spinal segments, synapse in ganglia near the spinal cord, and have:","options":["Long preganglionic and short postganglionic fibres","Short preganglionic and long postganglionic fibres","Only postganglionic fibres leaving the dorsal roots","No preganglionic fibres at all","Fibres that exit only with cranial nerves III, VII, IX and X"],"answerIndex":1,"explanation":"交感為胸腰部：節前纖維短、節後纖維長，在近脊髓的神經節換元，使身體準備應付危機與劇烈活動。","sourcePage":437},{"id":"AN02","topic":"Autonomic Nervous System","stem":"The parasympathetic division is the craniosacral division: fibres arise from the brainstem and sacral spinal segments, synapse in ganglia near or within effector organs, and have:","options":["Short preganglionic and long postganglionic fibres","Long preganglionic and short postganglionic fibres","Only fibres in white rami communicantes to the chain","Cell bodies exclusively in the adrenal medulla","No cranial outflow"],"answerIndex":1,"explanation":"副交感為顱骶部：節前纖維長、節後纖維短，使身體回到休息並保存能量。","sourcePage":447},{"id":"AN03","topic":"Autonomic Nervous System","stem":"Sympathetic chain (paravertebral / lateral) ganglia, including the superior, middle and inferior cervical ganglia, innervate the:","options":["Abdominopelvic viscera via the celiac ganglion only","Body wall, thoracic region, head and limbs","Adrenal cortical steroid secretion only","Descending colon exclusively","Intrinsic muscles of the tongue"],"answerIndex":1,"explanation":"交感鏈（椎旁／外側）神經節支配體壁、胸部、頭部與四肢。","sourcePage":439},{"id":"AN04","topic":"Autonomic Nervous System","stem":"Prevertebral ganglia listed include the celiac and superior mesenteric ganglia (greater splanchnic nerve) and the inferior mesenteric ganglion (lumbar splanchnic nerves). They innervate the:","options":["Body wall and limbs only","Abdominopelvic region","Intrinsic muscles of the eye only","Sweat glands of the palm only","Cochlea"],"answerIndex":1,"explanation":"椎前神經節由內臟大神經（T5–T9）、內臟小／最小神經（T10–T12）及腰內臟神經（L1–L2）到達，支配腹盆區。","sourcePage":440},{"id":"AN05","topic":"Autonomic Nervous System","stem":"The adrenal medullae are described as a modified sympathetic ganglion (lesser and least splanchnic nerves) whose short axons release into the bloodstream:","options":["Only acetylcholine, like all postganglionic sympathetic endings in the lecture","Adrenaline and noradrenaline (whereas the neurotransmitter at the preganglionic neurons is acetylcholine)","Dopamine only, with no catecholamines","Melatonin","CSF"],"answerIndex":1,"explanation":"腎上腺髓質是改良的交感神經節，短軸突向血流釋放腎上腺素與去甲腎上腺素；節前神經元的神經傳導物質則是乙醯膽鹼。","sourcePage":441},{"id":"AN06","topic":"Autonomic Nervous System","stem":"Axons of sympathetic presynaptic neurons leave the spinal cord through the ventral (anterior) root, enter ventral rami of T1–L2, and reach the sympathetic trunks through:","options":["Gray rami communicantes only, in every case before synapsing","White communicating branches (white rami communicantes)","Dorsal rami of C1–C4 only","The hypoglossal canal","Arachnoid granulations"],"answerIndex":1,"explanation":"節前纖維經腹根出脊髓，進入 T1–L2 腹側支，再經白交通支到達交感幹，之後可走三條路徑之一。","sourcePage":442},{"id":"AN07","topic":"Autonomic Nervous System","stem":"One of the three courses of a sympathetic presynaptic fibre is to pass through the sympathetic trunk without synapsing and continue through an abdominopelvic splanchnic nerve to reach the:","options":["Dorsal root ganglion","Prevertebral ganglia","Trigeminal (semilunar) ganglion","Spiral ganglion","Geniculate ganglion"],"answerIndex":1,"explanation":"三條路徑：(1) 在該節段椎旁神經節換元；(2) 在交感幹上升或下降後在較高或較低的椎旁神經節換元；(3) 不換元，經腹盆內臟神經至椎前神經節。","sourcePage":445},{"id":"AN08","topic":"Autonomic Nervous System","stem":"Cranial parasympathetic outflow exits the CNS with cranial nerves III, VII, IX and X, and is dominated by CN X, which accounts for about what percentage of parasympathetic outflow and supplies the GI tract as far as the left colic flexure?","options":["10%","25%","50%","75%","100%"],"answerIndex":3,"explanation":"顱部副交感以迷走神經為主，約佔 75%，供應胸腔及胃腸道自食管至大腸左結腸曲。骶部副交感經 S2–S4 腹根與骨盆內臟神經，供應降結腸、乙狀結腸與直腸。","sourcePage":448},{"id":"AN09","topic":"Autonomic Nervous System","stem":"The ciliary ganglion is associated with which cranial nerve?","options":["CN VII","CN III","CN IX","CN XI","CN XII"],"answerIndex":1,"explanation":"副交感神經節：睫狀神經節（CN III）、翼腭神經節（CN VII）、下頜下神經節（CN VII）、耳神經節（CN IX），以及迷走神經與骨盆內臟神經的壁內神經節。","sourcePage":449},{"id":"AN10","topic":"Autonomic Nervous System","stem":"The otic ganglion is a parasympathetic ganglion of:","options":["CN III","CN VII","CN IX","CN X only, without IX","CN XII"],"answerIndex":2,"explanation":"耳神經節屬舌咽神經（CN IX）的副交感神經節。翼腭與下頜下神經節屬面神經（CN VII）。","sourcePage":449},{"id":"CN01","topic":"Cranial Nerves","stem":"The olfactory nerve is the only cranial nerve that directly attaches to the cerebrum. Its fibres pass through foramina in the:","options":["Optic canal","Cribriform plate of the ethmoid bone, then enter the olfactory bulb","Internal acoustic meatus","Hypoglossal canal","Jugular foramen"],"answerIndex":1,"explanation":"嗅覺受器位於嗅上皮；纖維穿篩板進入前顱窩的嗅球，與僧帽細胞突觸後形成嗅束。篩板（顱底）骨折可導致嗅覺喪失（anosmia）。","sourcePage":454},{"id":"CN02","topic":"Cranial Nerves","stem":"Fracture of the cribriform plate (cranial base) could lead to:","options":["Wrist-drop","Loss of smell (anosmia)","Tongue deviation on protrusion only","Deafness from cochlear-nerve avulsion at the stylomastoid foramen","Foot-drop"],"answerIndex":1,"explanation":"篩板骨折可導致嗅覺喪失（anosmia）。","sourcePage":454},{"id":"CN03","topic":"Cranial Nerves","stem":"CN II begins where axons of retinal ganglion cells enter the orbit posteromedially (optic canal). After partial decussation at the optic chiasm (middle cranial fossa), the optic tract terminates in the:","options":["Medial geniculate bodies, then the temporal auditory cortex","Lateral geniculate bodies (thalamus), then the visual cortex of the occipital lobes","Olfactory bulb","Ciliary ganglion only","Inferior olivary nucleus only"],"answerIndex":1,"explanation":"視交叉的交叉與雙眼立體視覺有關；視束終止於丘腦外側膝狀體，再至枕葉視皮質。","sourcePage":456},{"id":"CN04","topic":"Cranial Nerves","stem":"The oculomotor nerve provides motor and proprioceptive innervation to four of the six extraocular muscles, namely the superior, medial and inferior rectus muscles and the:","options":["Superior oblique","Lateral rectus","Inferior oblique, plus levator palpebrae superioris (which elevates the upper eyelid)","Orbicularis oculi","Temporalis"],"answerIndex":2,"explanation":"動眼神經支配上、內、下直肌與下斜肌，以及提上瞼肌。它自中腦經眶上裂入眶：上支至上直肌與提上瞼肌，下支至下直肌、內直肌與下斜肌。","sourcePage":459},{"id":"CN05","topic":"Cranial Nerves","stem":"The trochlear nerve (CN IV) is motor and proprioceptive for which extraocular muscle?","options":["Lateral rectus","Superior oblique","Inferior oblique","Medial rectus","Levator palpebrae superioris"],"answerIndex":1,"explanation":"滑車神經支配上斜肌，自中腦背側繞腦幹，經眶上裂入眶。外展神經（CN VI）則支配外直肌。","sourcePage":460},{"id":"CN06","topic":"Cranial Nerves","stem":"The abducent nerve (CN VI) is motor and proprioceptive for the:","options":["Superior oblique","Lateral rectus","Medial rectus","Inferior oblique","Ciliary muscle only"],"answerIndex":1,"explanation":"外展神經支配外直肌，經腦橋小腦交界、沿基底動脈與頸動脈等路徑，再經眶上裂入眶。","sourcePage":460},{"id":"CN07","topic":"Cranial Nerves","stem":"The trigeminal nerve arises from the pons (a small motor and a large sensory root). Motor fibres for mastication travel in which division?","options":["Ophthalmic nerve (CN V1) only","Maxillary nerve (CN V2) only","Mandibular nerve (CN V3), which also supplies mylohyoid, the anterior belly of digastric and tensor veli palatini","Facial nerve (CN VII), not trigeminal","Hypoglossal nerve"],"answerIndex":2,"explanation":"感覺根分為眼神經（V1，含角膜反射）、上頜神經（V2）與下頜神經（V3）。運動根走在 V3。感覺神經元位於三叉／半月神經節。","sourcePage":462},{"id":"CN08","topic":"Cranial Nerves","stem":"The facial nerve supplies taste from the anterior two-thirds of the tongue and the soft palate, motor innervation to muscles of facial expression, and parasympathetic fibres to the:","options":["Parotid gland only","Submandibular and sublingual salivary glands, lacrimal glands, and glands of the nasal cavity and palate","Adrenal medulla","Sweat glands of the whole body exclusively","Sphincter of Oddi only"],"answerIndex":1,"explanation":"面神經亦運動支配二腹肌後腹、莖突舌骨肌與鐙骨肌，並有本體感覺。腮腺的分泌則主要由舌咽神經負責。","sourcePage":465},{"id":"CN09","topic":"Cranial Nerves","stem":"The facial nerve originates at the junction of the pons and medulla and travels via the posterior cranial fossa and internal acoustic meatus, exiting the skull through the:","options":["Jugular foramen","Stylomastoid foramen, then entering the parotid gland","Hypoglossal canal","Foramen ovale","Cribriform plate"],"answerIndex":1,"explanation":"面神經較大的運動根支配表情肌；較小的中間神經含味覺、副交感與體感纖維。","sourcePage":466},{"id":"CN10","topic":"Cranial Nerves","stem":"The vestibulocochlear nerve originates at the junction of the pons and medulla and enters the internal acoustic meatus together with:","options":["CN XII","CN VII","CN V3","CN XI only, never VII","CN I"],"answerIndex":1,"explanation":"前庭蝸神經與面神經一同進入內耳道。前庭纖維司平衡，蝸纖維司聽覺。","sourcePage":469},{"id":"CN11","topic":"Cranial Nerves","stem":"Cochlear fibres of CN VIII are concerned with hearing and are associated with the spiral ganglion and the:","options":["Utricle and saccule with otoliths only","Spiral organ of Corti","Ampullae of the semicircular canals only","Olfactory epithelium","Ciliary ganglion"],"answerIndex":1,"explanation":"蝸神經纖維：螺旋神經節與 Corti 器，司聽覺。前庭纖維：前庭神經節、球囊與橢圓囊（有耳石）及半規管壺腹，司平衡。","sourcePage":470},{"id":"CN12","topic":"Cranial Nerves","stem":"The glossopharyngeal nerve supplies taste from the:","options":["Anterior two-thirds of the tongue","Posterior one-third of the tongue","Entire tongue exclusively via CN XII","Soft palate only, via CN VII","Epiglottis only, via CN X, with no IX involvement"],"answerIndex":1,"explanation":"舌咽神經感覺：舌後 1/3 味覺；咽黏膜、腭扁桃體、咽鼓管、中耳，以及頸動脈體與竇的血壓訊息。運動支配莖突咽肌；副交感司腮腺分泌。","sourcePage":473},{"id":"CN13","topic":"Cranial Nerves","stem":"CN IX leaves the medulla and passes through the jugular foramen (together with which other nerve is specifically mentioned at that foramen on this slide)?","options":["CN I","CN XI","CN XII","CN II","CN IV"],"answerIndex":1,"explanation":"舌咽神經自延髓出腦，與 CN XI 一同穿 jugular foramen。上、下神經節位於 jugular foramen。","sourcePage":472},{"id":"CN14","topic":"Cranial Nerves","stem":"The vagus nerve supplies parasympathetic innervation to thoracic and abdominal viscera and motor innervation to the soft palate, pharynx, intrinsic laryngeal (vocal) muscles, and which extrinsic tongue muscle?","options":["Hyoglossus","Styloglossus","Palatoglossus","Genioglossus","Geniohyoid"],"answerIndex":2,"explanation":"迷走神經感覺支配下咽、喉、胸腹器官，以及舌根與會厭的味覺。運動尚包括腭舌肌。它提供約 75–90% 的副交感支配。","sourcePage":475},{"id":"CN15","topic":"Cranial Nerves","stem":"After forming anterior and posterior gastric vagal trunks, intestinal branches of the vagus continue as far as the:","options":["Pylorus only","Left colic flexure","Ileocecal valve only","Anal verge in every fibre","Duodenojejunal flexure only"],"answerIndex":1,"explanation":"迷走神經在食管叢向下，穿膈成為胃前、後幹，腸支到達左結腸曲。降結腸以遠則由骶部副交感供應。","sourcePage":477},{"id":"CN16","topic":"Cranial Nerves","stem":"The spinal root of the accessory nerve supplies which two muscles?","options":["Masseter and temporalis","Sternocleidomastoid (SCM) and trapezius","Genioglossus and hyoglossus","Superior and inferior oblique","Iliacus and psoas major"],"answerIndex":1,"explanation":"副神經脊髓根支配胸鎖乳突肌與斜方肌。顱根（迷走部）來自延髓，在顱內加入迷走神經，並與軟腭、咽與食管的運動有關。","sourcePage":480},{"id":"CN17","topic":"Cranial Nerves","stem":"The hypoglossal nerve is motor to the intrinsic and extrinsic muscles of the tongue, including styloglossus, hyoglossus and:","options":["Palatoglossus (which is instead listed with the vagus)","Genioglossus","Levator palpebrae superioris","Lateral pterygoid","Stylopharyngeus"],"answerIndex":1,"explanation":"舌下神經支配舌內肌以及莖突舌肌、舌骨舌肌與頦舌肌。它也將 C1、C2 的運動與本體感覺帶至甲狀舌骨肌與頦舌骨肌。腭舌肌則由迷走神經支配。","sourcePage":483},{"id":"CN18","topic":"Cranial Nerves","stem":"The hypoglossal nerve is formed by purely motor rootlets from the medulla and leaves the skull through the:","options":["Jugular foramen","Hypoglossal canal, then is joined by a cervical plexus branch from C1 and C2","Internal acoustic meatus","Stylomastoid foramen","Optic canal"],"answerIndex":1,"explanation":"舌下神經經舌下神經管出顱，再與頸叢（C1、C2）分支會合，行至下頜角附近，支配舌與舌骨肌。","sourcePage":484}];
+
+const LS_WRONG = "bmsc1005_anatomy_wrong_bank_v1";
+const LS_LAST = "bmsc1005_anatomy_last_score_v1";
+const LS_PREFS = "bmsc1005_anatomy_prefs_v1";
+
+const TOPIC_ZH = {
+  "Axial Skeleton": "中軸骨骼",
+  "Appendicular Skeleton": "附肢骨骼",
+  "Joints & Articulations": "關節",
+  "Musculature": "肌肉系統",
+  "Heart & Circulation": "心臟與循環",
+  "Respiratory System": "呼吸系統",
+  "Arterial & Venous Systems": "動靜脈系統",
+  "Urogenital System": "泌尿生殖系統",
+  "Digestive System": "消化系統",
+  "Nervous System": "神經系統",
+  "Autonomic Nervous System": "自律神經系統",
+  "Cranial Nerves": "腦神經"
+};
+const TOPIC_ORDER = Object.keys(TOPIC_ZH);
+const LETTERS = ["A", "B", "C", "D", "E"];
+
+const $ = (id) => document.getElementById(id);
+const QMAP = Object.fromEntries(QUESTIONS.map((q) => [q.id, q]));
+
+const state = {
+  screen: "home",
+  selectedTopics: new Set(TOPIC_ORDER),
+  length: 20,
+  timerOn: false,
+  mode: "practice",
+  queue: [],
+  index: 0,
+  score: 0,
+  streak: 0,
+  maxStreak: 0,
+  answers: [],
+  startedAt: 0,
+  elapsedMs: 0,
+  remain: 30,
+  timerId: null,
+  locked: false,
+  current: null
+};
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function prepareQuestion(q) {
+  const order = shuffle([0, 1, 2, 3, 4]);
+  return {
+    id: q.id,
+    topic: q.topic,
+    stem: q.stem,
+    options: order.map((i) => q.options[i]),
+    answerIndex: order.indexOf(q.answerIndex),
+    explanation: q.explanation,
+    sourcePage: q.sourcePage,
+    origOptions: q.options,
+    origAnswer: q.answerIndex
+  };
+}
+
+function loadWrong() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(LS_WRONG) || "[]");
+    return Array.isArray(raw) ? raw.filter((id) => QMAP[id]) : [];
+  } catch (e) {
+    return [];
+  }
+}
+function saveWrong(ids) {
+  localStorage.setItem(LS_WRONG, JSON.stringify([...new Set(ids)]));
+}
+function addWrong(id) {
+  const ids = loadWrong();
+  if (!ids.includes(id)) {
+    ids.push(id);
+    saveWrong(ids);
+  }
+}
+function removeWrong(id) {
+  saveWrong(loadWrong().filter((x) => x !== id));
+}
+
+function loadPrefs() {
+  try {
+    return JSON.parse(localStorage.getItem(LS_PREFS) || "{}");
+  } catch (e) {
+    return {};
+  }
+}
+function savePrefs() {
+  localStorage.setItem(LS_PREFS, JSON.stringify({
+    topics: [...state.selectedTopics],
+    length: state.length,
+    timerOn: state.timerOn
+  }));
+}
+
+function showScreen(name) {
+  state.screen = name;
+  document.querySelectorAll(".screen").forEach((el) => {
+    el.classList.toggle("active", el.id === name);
+  });
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function topicCounts() {
+  const c = {};
+  TOPIC_ORDER.forEach((t) => { c[t] = 0; });
+  QUESTIONS.forEach((q) => { c[q.topic] = (c[q.topic] || 0) + 1; });
+  return c;
+}
+
+function renderTopics() {
+  const counts = topicCounts();
+  const grid = $("topicGrid");
+  grid.innerHTML = "";
+  TOPIC_ORDER.forEach((t) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "topic";
+    btn.setAttribute("aria-pressed", state.selectedTopics.has(t) ? "true" : "false");
+    btn.innerHTML = `<span class="box">${state.selectedTopics.has(t) ? "✓" : ""}</span>
+      <span class="name">${escapeHtml(t)}<span class="zh">${TOPIC_ZH[t]}</span></span>
+      <span class="n">${counts[t]}</span>`;
+    btn.addEventListener("click", () => {
+      if (state.selectedTopics.has(t)) state.selectedTopics.delete(t);
+      else state.selectedTopics.add(t);
+      savePrefs();
+      renderTopics();
+    });
+    grid.appendChild(btn);
+  });
+}
+
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function updateBankChrome() {
+  const n = loadWrong().length;
+  $("bankBadge").textContent = n;
+  $("bankBadge").classList.toggle("empty", n === 0);
+  $("bankPreview").textContent = n ? `已收藏 ${n} 題待複習` : "尚未有錯題";
+}
+
+function updateLastScore() {
+  try {
+    const last = JSON.parse(localStorage.getItem(LS_LAST) || "null");
+    if (last && typeof last.correct === "number") {
+      $("lastScorePill").hidden = false;
+      $("lastScoreText").textContent = `${last.correct}/${last.total}（${last.accuracy}%）`;
+    }
+  } catch (e) { /* ignore */ }
+}
+
+function poolFromSelection() {
+  const set = state.selectedTopics;
+  const useAll = set.size === 0 || set.size === TOPIC_ORDER.length;
+  return QUESTIONS.filter((q) => useAll || set.has(q.topic));
+}
+
+function startQuiz(mode) {
+  state.mode = mode;
+  let pool;
+  if (mode === "review") {
+    pool = loadWrong().map((id) => QMAP[id]).filter(Boolean);
+    if (!pool.length) {
+      openBank();
+      return;
+    }
+  } else {
+    pool = poolFromSelection();
+    if (!pool.length) pool = QUESTIONS.slice();
+    const cap = state.length > 0 ? Math.min(state.length, pool.length) : pool.length;
+    pool = shuffle(pool).slice(0, cap);
+  }
+  state.queue = shuffle(pool).map(prepareQuestion);
+  state.index = 0;
+  state.score = 0;
+  state.streak = 0;
+  state.maxStreak = 0;
+  state.answers = [];
+  state.startedAt = Date.now();
+  state.elapsedMs = 0;
+  $("modeLabel").textContent = mode === "review" ? "錯題練習" : (state.timerOn ? "計時挑戰" : "練習模式");
+  $("timerChip").hidden = !state.timerOn;
+  showScreen("quiz");
+  renderQuestion();
+}
+
+function clearTimer() {
+  if (state.timerId) {
+    clearInterval(state.timerId);
+    state.timerId = null;
+  }
+}
+
+function renderQuestion() {
+  clearTimer();
+  state.locked = false;
+  const q = state.queue[state.index];
+  state.current = q;
+  const total = state.queue.length;
+  const n = state.index + 1;
+  $("progressLabel").textContent = `第 ${n} 題 / 共 ${total} 題`;
+  $("progressBar").style.width = `${((n - 1) / total) * 100}%`;
+  $("qTopic").textContent = `${q.topic}  ·  ${TOPIC_ZH[q.topic] || ""}`;
+  $("qNum").textContent = `Question ${n}`;
+  $("qStem").textContent = q.stem;
+  $("scoreChip").textContent = state.score;
+  $("streakChip").hidden = state.streak < 2;
+  $("streakVal").textContent = state.streak;
+  $("feedback").className = "feedback";
+  $("nextBtn").hidden = true;
+  $("nextBtn").textContent = n === total ? "查看成績" : "下一題";
+
+  const box = $("qOpts");
+  box.innerHTML = "";
+  q.options.forEach((text, i) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "opt";
+    btn.dataset.index = String(i);
+    btn.innerHTML = `<span class="letter">${LETTERS[i]}</span><span>${escapeHtml(text)}</span>`;
+    btn.addEventListener("click", () => answer(i));
+    box.appendChild(btn);
+  });
+
+  if (state.timerOn) {
+    state.remain = 30;
+    $("timerChip").className = "chip";
+    $("timerVal").textContent = state.remain;
+    state.timerId = setInterval(() => {
+      state.remain -= 1;
+      $("timerVal").textContent = state.remain;
+      if (state.remain <= 8) $("timerChip").className = "chip warn";
+      if (state.remain <= 4) $("timerChip").className = "chip danger";
+      if (state.remain <= 0) {
+        clearTimer();
+        answer(-1);
+      }
+    }, 1000);
+  }
+}
+
+function answer(choice) {
+  if (state.locked) return;
+  state.locked = true;
+  clearTimer();
+  const q = state.current;
+  const correct = choice === q.answerIndex;
+  const timedOut = choice === -1;
+  if (correct) {
+    state.score += 1;
+    state.streak += 1;
+    state.maxStreak = Math.max(state.maxStreak, state.streak);
+    if (state.mode === "review") removeWrong(q.id);
+  } else {
+    state.streak = 0;
+    addWrong(q.id);
+  }
+  state.answers.push({
+    id: q.id,
+    choice,
+    correct,
+    timedOut,
+    topic: q.topic,
+    stem: q.stem,
+    picked: timedOut ? null : q.options[choice],
+    right: q.options[q.answerIndex]
+  });
+
+  $("scoreChip").textContent = state.score;
+  $("streakChip").hidden = state.streak < 2;
+  $("streakVal").textContent = state.streak;
+  $("progressBar").style.width = `${(state.index + 1) / state.queue.length * 100}%`;
+
+  [...$("qOpts").children].forEach((btn) => {
+    const i = Number(btn.dataset.index);
+    btn.disabled = true;
+    if (i === q.answerIndex) btn.classList.add("correct");
+    else if (i === choice && !correct) btn.classList.add("wrong");
+    else btn.classList.add("dim");
+  });
+
+  const fb = $("feedback");
+  fb.className = "feedback show " + (correct ? "ok" : "bad");
+  $("fbVerdict").textContent = correct ? "正確  ✓" : (timedOut ? "時間到  ✦" : "錯誤  ✕");
+  $("fbText").textContent = q.explanation;
+  $("fbSrc").textContent = `講義頁碼：p.${q.sourcePage}  ·  正確答案：${LETTERS[q.answerIndex]}. ${q.options[q.answerIndex]}`;
+  $("nextBtn").hidden = false;
+  $("nextBtn").focus();
+  updateBankChrome();
+}
+
+function nextQuestion() {
+  if (!state.locked) return;
+  if (state.index + 1 >= state.queue.length) finishQuiz();
+  else {
+    state.index += 1;
+    renderQuestion();
+  }
+}
+
+function formatTime(ms) {
+  const s = Math.round(ms / 1000);
+  const m = Math.floor(s / 60);
+  const r = s % 60;
+  return m ? `${m} 分 ${r} 秒` : `${r} 秒`;
+}
+
+function finishQuiz() {
+  clearTimer();
+  state.elapsedMs = Date.now() - state.startedAt;
+  const total = state.queue.length;
+  const correct = state.score;
+  const wrong = total - correct;
+  const acc = total ? Math.round((correct / total) * 100) : 0;
+  localStorage.setItem(LS_LAST, JSON.stringify({
+    correct, total, accuracy: acc, at: Date.now(), mode: state.mode
+  }));
+
+  $("resultSub").textContent = state.mode === "review" ? "錯題練習完成" : "本次練習已結束，答錯題目已收入錯題庫";
+  $("accLabel").textContent = acc + "%";
+  $("scoreFrac").textContent = `${correct} / ${total}`;
+  $("statCorrect").textContent = correct;
+  $("statWrong").textContent = wrong;
+  $("statStreak").textContent = state.maxStreak;
+  $("statTime").textContent = formatTime(state.elapsedMs);
+  const circ = 2 * Math.PI * 52;
+  $("ringArc").style.stroke = acc >= 80 ? "#3fd191" : acc >= 50 ? "#e0c36a" : "#f0717a";
+  $("ringArc").style.strokeDashoffset = String(circ * (1 - acc / 100));
+
+  const missed = state.answers.filter((a) => !a.correct);
+  $("missCount").textContent = missed.length ? `${missed.length} 題` : "沒有錯過的題目";
+  const list = $("missList");
+  if (!missed.length) {
+    list.innerHTML = `<div class="empty" style="padding:16px;">全部答對，太好了。</div>`;
+  } else {
+    list.innerHTML = missed.map((a, i) => `
+      <div class="miss">
+        <div class="t">${escapeHtml(a.topic)}  ·  ${escapeHtml(TOPIC_ZH[a.topic] || "")}</div>
+        <div>${i + 1}. ${escapeHtml(a.stem)}</div>
+        <div class="you">你的答案：${a.timedOut ? "（逾時未作答）" : escapeHtml(a.picked || "—")}</div>
+        <div class="right">正確答案：${escapeHtml(a.right)}</div>
+      </div>`).join("");
+  }
+  $("resultBankBtn").hidden = loadWrong().length === 0;
+  updateBankChrome();
+  showScreen("result");
+}
+
+function openBank() {
+  const ids = loadWrong();
+  const empty = ids.length === 0;
+  $("bankEmpty").hidden = !empty;
+  $("bankFilled").hidden = empty;
+  $("bankCountLabel").textContent = ids.length;
+  if (!empty) {
+    $("bankList").innerHTML = ids.map((id) => {
+      const q = QMAP[id];
+      return `<div class="bank-item" data-id="${escapeHtml(id)}">
+        <p><span class="t" style="color:var(--teal);font-size:0.72rem;display:block;margin-bottom:4px;">${escapeHtml(q.topic)}  ·  ${escapeHtml(TOPIC_ZH[q.topic] || "")}  ·  p.${q.sourcePage}</span>${escapeHtml(q.stem)}</p>
+        <button type="button" class="tiny" data-remove="${escapeHtml(id)}">從錯題庫移除</button>
+      </div>`;
+    }).join("");
+  }
+  showScreen("bank");
+}
+
+function confirmQuit() {
+  if (state.answers.length && !confirm("要結束本次測驗並查看目前成績嗎？")) return;
+  if (state.answers.length) finishQuiz();
+  else {
+    clearTimer();
+    showScreen("home");
+  }
+}
+
+function bind() {
+  $("totalCount").textContent = QUESTIONS.length;
+  renderTopics();
+  updateBankChrome();
+  updateLastScore();
+
+  $("selectAllTopics").addEventListener("click", () => {
+    state.selectedTopics = new Set(TOPIC_ORDER);
+    savePrefs();
+    renderTopics();
+  });
+  $("clearTopics").addEventListener("click", () => {
+    state.selectedTopics.clear();
+    savePrefs();
+    renderTopics();
+  });
+  document.querySelectorAll(".seg button[data-len]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      state.length = Number(btn.dataset.len);
+      document.querySelectorAll(".seg button[data-len]").forEach((b) => {
+        b.setAttribute("aria-pressed", b === btn ? "true" : "false");
+      });
+      savePrefs();
+    });
+  });
+  $("timerToggle").addEventListener("click", () => {
+    state.timerOn = !state.timerOn;
+    $("timerToggle").setAttribute("aria-pressed", state.timerOn ? "true" : "false");
+    savePrefs();
+  });
+  $("startBtn").addEventListener("click", () => startQuiz("practice"));
+  $("openBankBtn").addEventListener("click", openBank);
+  $("quitBtn").addEventListener("click", confirmQuit);
+  $("nextBtn").addEventListener("click", nextQuestion);
+  $("retryBtn").addEventListener("click", () => startQuiz(state.mode));
+  $("resultBankBtn").addEventListener("click", openBank);
+  $("homeBtn").addEventListener("click", () => { updateLastScore(); showScreen("home"); });
+  $("bankBackBtn").addEventListener("click", () => { updateBankChrome(); showScreen("home"); });
+  $("emptyHomeBtn").addEventListener("click", () => showScreen("home"));
+  $("reviewStartBtn").addEventListener("click", () => startQuiz("review"));
+  $("clearBankBtn").addEventListener("click", () => {
+    if (confirm("確定要清空全部錯題嗎？此操作無法復原。")) {
+      saveWrong([]);
+      openBank();
+      updateBankChrome();
+    }
+  });
+  $("bankList").addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-remove]");
+    if (!btn) return;
+    removeWrong(btn.getAttribute("data-remove"));
+    openBank();
+    updateBankChrome();
+  });
+
+  const prefs = loadPrefs();
+  if (Array.isArray(prefs.topics) && prefs.topics.length) {
+    state.selectedTopics = new Set(prefs.topics.filter((t) => TOPIC_ZH[t]));
+    renderTopics();
+  }
+  if (typeof prefs.length === "number") {
+    state.length = prefs.length;
+    document.querySelectorAll(".seg button[data-len]").forEach((b) => {
+      b.setAttribute("aria-pressed", Number(b.dataset.len) === state.length ? "true" : "false");
+    });
+  }
+  if (prefs.timerOn) {
+    state.timerOn = true;
+    $("timerToggle").setAttribute("aria-pressed", "true");
+  }
+
+  document.addEventListener("keydown", (e) => {
+    if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
+    if (state.screen !== "quiz") return;
+    if (e.key === "Escape") { confirmQuit(); return; }
+    if ((e.key === "Enter" || e.key === " ") && state.locked) {
+      e.preventDefault();
+      nextQuestion();
+      return;
+    }
+    if (state.locked) return;
+    const map = { "1": 0, "2": 1, "3": 2, "4": 3, "5": 4, a: 0, b: 1, c: 2, d: 3, e: 4, A: 0, B: 1, C: 2, D: 3, E: 4 };
+    if (map[e.key] !== undefined) {
+      e.preventDefault();
+      answer(map[e.key]);
+    }
+  });
+}
+
+bind();
+</script>
+</body>
+</html>
