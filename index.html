@@ -439,6 +439,21 @@ h1 {
   border-radius: 8px; padding: 6px 8px; cursor: pointer; font-size: 0.75rem; flex: none;
 }
 .tiny:hover { border-color: var(--bad); color: var(--bad); }
+.badge.hist { background: rgba(224,195,106,0.18); color: var(--gold-2); }
+.badge.hist.empty { background: rgba(74,212,194,0.15); color: var(--teal); }
+.hist-item {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+.hist-item .meta { color: var(--muted); font-size: 0.75rem; margin-bottom: 4px; }
+.hist-item .scoreline { color: var(--cream); font-size: 1.02rem; font-weight: 650; }
+.hist-item .scoreline b { color: var(--gold-2); font-weight: 700; }
+.hist-item .sub { color: var(--cream-dim); font-size: 0.82rem; margin-top: 4px; }
+.hist-item .detail { margin-top: 10px; }
+.period-note { color: var(--cream-dim); margin: 0 0 12px; }
 .kb-hint { text-align: center; color: var(--muted); font-size: 0.75rem; margin-top: 16px; }
 footer.colophon {
   margin-top: 28px; text-align: center; color: var(--muted); font-size: 0.75rem;
@@ -508,6 +523,10 @@ footer.colophon {
         <span class="left">進入<strong style="letter-spacing:0.08em;"> 錯題庫</strong><small id="bankPreview">尚未有錯題</small></span>
         <span class="badge empty" id="bankBadge">0</span>
       </button>
+      <button type="button" class="btn btn-ghost bank-card" id="openHistoryBtn">
+        <span class="left">查看<strong style="letter-spacing:0.08em;"> 答題紀錄</strong><small id="historyPreview">尚未有紀錄</small></span>
+        <span class="badge hist empty" id="historyBadge">0</span>
+      </button>
     </div>
     <p class="kb-hint">作答捷徑：鍵盤 1–5 或 A–E 選擇，Enter 進入下一題</p>
     <footer class="colophon">題目依據 BMSC 1005 Anatomy lecture notes 編製，僅供課堂複習使用。</footer>
@@ -575,6 +594,7 @@ footer.colophon {
     <div class="cta-row" style="margin-bottom:18px;">
       <button type="button" class="btn btn-primary" id="retryBtn">再試一次</button>
       <button type="button" class="btn btn-ghost" id="resultBankBtn">複習錯題</button>
+      <button type="button" class="btn btn-ghost" id="resultHistoryBtn">查看答題紀錄</button>
       <button type="button" class="btn btn-ghost" id="homeBtn">返回主頁</button>
     </div>
     <div class="panel">
@@ -612,6 +632,39 @@ footer.colophon {
       <div id="bankList"></div>
     </div>
   </section>
+
+  <!-- HISTORY -->
+  <section id="history" class="screen" aria-label="答題紀錄">
+    <div class="topbar">
+      <button type="button" class="icon-btn" id="historyBackBtn" aria-label="返回主頁">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        <span>返回</span>
+      </button>
+      <div>
+        <div class="kicker">Answer history</div>
+        <h1 style="font-size:1.6rem;margin:0;">答題紀錄</h1>
+      </div>
+    </div>
+    <div class="panel">
+      <p class="period-note" id="historyPeriodNote">紀錄每七天自動清空一次。</p>
+      <div class="result-grid" id="historyStats" hidden>
+        <div class="stat"><span class="k">練習次數</span><span class="v" id="histStatSessions">0</span></div>
+        <div class="stat"><span class="k">作答題數</span><span class="v" id="histStatAnswered">0</span></div>
+        <div class="stat"><span class="k">答對題數</span><span class="v" id="histStatCorrect">0</span></div>
+        <div class="stat"><span class="k">平均正確率</span><span class="v" id="histStatAcc">—</span></div>
+      </div>
+      <div class="cta-row" id="historyClearRow" hidden>
+        <button type="button" class="btn btn-danger" id="clearHistoryBtn">清空本週期紀錄</button>
+      </div>
+    </div>
+    <div id="historyEmpty" class="panel empty" hidden>
+      <div class="big">✦</div>
+      <p style="color:var(--cream);font-size:1.15rem;margin:0 0 6px;">目前沒有答題紀錄</p>
+      <p style="margin:0 0 16px;">完成一次測驗後，成績和作答明細會出現在這裡，並在七天後自動清空。</p>
+      <button type="button" class="btn btn-primary" id="historyEmptyHomeBtn">返回主頁開始練習</button>
+    </div>
+    <div id="historyList"></div>
+  </section>
 </div>
 
 <script>
@@ -620,6 +673,8 @@ const QUESTIONS = [{"id":"AX01","topic":"Axial Skeleton","stem":"According to th
 const LS_WRONG = "bmsc1005_anatomy_wrong_bank_v1";
 const LS_LAST = "bmsc1005_anatomy_last_score_v1";
 const LS_PREFS = "bmsc1005_anatomy_prefs_v1";
+const LS_HISTORY = "bmsc1005_anatomy_history_v1";
+const HISTORY_PERIOD_MS = 7 * 24 * 60 * 60 * 1000;
 
 const TOPIC_ZH = {
   "Axial Skeleton": "中軸骨骼",
@@ -742,6 +797,7 @@ function goHome(opts) {
   const options = opts || {};
   clearTimer();
   updateBankChrome();
+  updateHistoryChrome();
   updateLastScore();
   renderTopics();
   showScreen("home", { skipHistory: options.skipHistory, replace: options.replace !== false });
@@ -976,6 +1032,138 @@ function formatTime(ms) {
   return m ? `${m} 分 ${r} 秒` : `${r} 秒`;
 }
 
+function formatDateTime(ts) {
+  return new Date(ts).toLocaleString("zh-HK", {
+    timeZone: "Asia/Hong_Kong",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false
+  });
+}
+
+function formatRemain(ms) {
+  if (ms <= 0) return "即將清空";
+  const d = Math.floor(ms / 86400000);
+  const h = Math.floor((ms % 86400000) / 3600000);
+  const m = Math.floor((ms % 3600000) / 60000);
+  if (d >= 1) return `還有 ${d} 日 ${h} 小時後自動清空`;
+  if (h >= 1) return `還有 ${h} 小時 ${m} 分鐘後自動清空`;
+  return `還有 ${Math.max(1, m)} 分鐘後自動清空`;
+}
+
+function sessionModeLabel(session) {
+  if (session.mode === "review") return "錯題練習";
+  if (session.timerOn) return "計時挑戰";
+  return "練習模式";
+}
+
+function defaultHistory() {
+  return { periodStart: Date.now(), sessions: [] };
+}
+
+function loadHistory() {
+  let data;
+  try {
+    data = JSON.parse(localStorage.getItem(LS_HISTORY) || "null");
+  } catch (e) {
+    data = null;
+  }
+  if (!data || typeof data !== "object") data = defaultHistory();
+  if (typeof data.periodStart !== "number" || !data.periodStart) data.periodStart = Date.now();
+  if (!Array.isArray(data.sessions)) data.sessions = [];
+  if (Date.now() >= data.periodStart + HISTORY_PERIOD_MS) {
+    const cycles = Math.max(1, Math.floor((Date.now() - data.periodStart) / HISTORY_PERIOD_MS));
+    data.periodStart += cycles * HISTORY_PERIOD_MS;
+    data.sessions = [];
+    saveHistory(data);
+  }
+  return data;
+}
+
+function saveHistory(data) {
+  localStorage.setItem(LS_HISTORY, JSON.stringify({
+    periodStart: data.periodStart,
+    sessions: data.sessions
+  }));
+}
+
+function addHistorySession(session) {
+  const data = loadHistory();
+  data.sessions.push(session);
+  saveHistory(data);
+  updateHistoryChrome();
+}
+
+function historyClearsAt(data) {
+  return data.periodStart + HISTORY_PERIOD_MS;
+}
+
+function updateHistoryChrome() {
+  const data = loadHistory();
+  const n = data.sessions.length;
+  const remain = formatRemain(historyClearsAt(data) - Date.now());
+  const badge = $("historyBadge");
+  const preview = $("historyPreview");
+  if (badge) {
+    badge.textContent = n;
+    badge.classList.toggle("empty", n === 0);
+  }
+  if (preview) {
+    preview.textContent = n ? `本週期 ${n} 次練習 · ${remain}` : `尚未有紀錄 · ${remain}`;
+  }
+}
+
+function openHistory(opts) {
+  const options = opts || {};
+  const data = loadHistory();
+  const sessions = data.sessions.slice().reverse();
+  const empty = sessions.length === 0;
+  const until = historyClearsAt(data);
+  $("historyPeriodNote").textContent =
+    `紀錄每七天自動清空一次。本週期將於 ${formatDateTime(until)}（香港時間）清空，${formatRemain(until - Date.now())}。`;
+  $("historyEmpty").hidden = !empty;
+  $("historyStats").hidden = empty;
+  $("historyClearRow").hidden = empty;
+  $("historyList").innerHTML = "";
+  if (!empty) {
+    let answered = 0;
+    let correct = 0;
+    sessions.forEach((s) => {
+      answered += Number(s.total) || 0;
+      correct += Number(s.correct) || 0;
+    });
+    const acc = answered ? Math.round((correct / answered) * 100) : 0;
+    $("histStatSessions").textContent = sessions.length;
+    $("histStatAnswered").textContent = answered;
+    $("histStatCorrect").textContent = correct;
+    $("histStatAcc").textContent = acc + "%";
+    $("historyList").innerHTML = sessions.map((s) => {
+      const sid = escapeHtml(String(s.id || s.at));
+      const answers = Array.isArray(s.answers) ? s.answers : [];
+      const detail = answers.length ? answers.map((a, i) => `
+        <div class="miss">
+          <div class="t">${escapeHtml(a.topic || "")}  ·  ${escapeHtml(TOPIC_ZH[a.topic] || "")}  ·  ${a.correct ? "正確" : (a.timedOut ? "逾時" : "錯誤")}</div>
+          <div>${i + 1}. ${escapeHtml(a.stem || "")}</div>
+          <div class="you">你的答案：${a.timedOut ? "（逾時未作答）" : escapeHtml(a.picked || "—")}</div>
+          <div class="right">正確答案：${escapeHtml(a.right || "—")}</div>
+        </div>`).join("") : `<div class="empty" style="padding:12px;">沒有作答明細。</div>`;
+      return `<div class="hist-item">
+        <div class="meta">${escapeHtml(formatDateTime(s.at))}（香港時間）  ·  ${escapeHtml(sessionModeLabel(s))}</div>
+        <div class="scoreline"><b>${s.correct} / ${s.total}</b>（${s.accuracy}%）</div>
+        <div class="sub">用時 ${escapeHtml(formatTime(s.elapsedMs || 0))}${s.maxStreak ? `  ·  最高連對 ${s.maxStreak}` : ""}</div>
+        <div class="row-actions">
+          <button type="button" class="linkish" data-expand="${sid}" aria-expanded="false">查看作答明細</button>
+        </div>
+        <div class="detail" id="hist-detail-${sid}" hidden>${detail}</div>
+      </div>`;
+    }).join("");
+  }
+  showScreen("history", { skipHistory: options.skipHistory });
+}
+
 function finishQuiz(opts) {
   const options = opts || {};
   clearTimer();
@@ -987,6 +1175,26 @@ function finishQuiz(opts) {
   localStorage.setItem(LS_LAST, JSON.stringify({
     correct, total, accuracy: acc, at: Date.now(), mode: state.mode
   }));
+  addHistorySession({
+    id: "S" + Date.now(),
+    at: Date.now(),
+    mode: state.mode,
+    timerOn: state.timerOn,
+    correct,
+    total,
+    accuracy: acc,
+    elapsedMs: state.elapsedMs,
+    maxStreak: state.maxStreak,
+    answers: state.answers.map((a) => ({
+      id: a.id,
+      topic: a.topic,
+      stem: a.stem,
+      correct: a.correct,
+      timedOut: a.timedOut,
+      picked: a.picked,
+      right: a.right
+    }))
+  });
 
   $("resultSub").textContent = state.mode === "review" ? "錯題練習完成" : "本次練習已結束，答錯題目已收入錯題庫";
   $("accLabel").textContent = acc + "%";
@@ -1067,6 +1275,7 @@ function bind() {
   $("totalCount").textContent = QUESTIONS.length;
   renderTopics();
   updateBankChrome();
+  updateHistoryChrome();
   updateLastScore();
 
   $("selectAllTopics").addEventListener("click", () => {
@@ -1095,13 +1304,37 @@ function bind() {
   });
   $("startBtn").addEventListener("click", () => startQuiz("practice"));
   $("openBankBtn").addEventListener("click", openBank);
+  $("openHistoryBtn").addEventListener("click", () => openHistory());
   $("quitBtn").addEventListener("click", () => requestBack());
   $("nextBtn").addEventListener("click", nextQuestion);
   $("retryBtn").addEventListener("click", () => startQuiz(state.mode));
   $("resultBankBtn").addEventListener("click", openBank);
+  $("resultHistoryBtn").addEventListener("click", () => openHistory());
   $("homeBtn").addEventListener("click", () => goHome());
   $("bankBackBtn").addEventListener("click", () => requestBack());
+  $("historyBackBtn").addEventListener("click", () => requestBack());
+  $("historyEmptyHomeBtn").addEventListener("click", () => goHome());
   $("emptyHomeBtn").addEventListener("click", () => goHome());
+  $("clearHistoryBtn").addEventListener("click", () => {
+    if (confirm("確定要清空本週期的答題紀錄嗎？此操作無法復原。七天自動清空的時間不會重設。")) {
+      const data = loadHistory();
+      data.sessions = [];
+      saveHistory(data);
+      openHistory({ skipHistory: true });
+      updateHistoryChrome();
+    }
+  });
+  $("historyList").addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-expand]");
+    if (!btn) return;
+    const id = btn.getAttribute("data-expand");
+    const detail = document.getElementById("hist-detail-" + id);
+    if (!detail) return;
+    const open = detail.hidden;
+    detail.hidden = !open;
+    btn.textContent = open ? "收起明細" : "查看作答明細";
+    btn.setAttribute("aria-expanded", open ? "true" : "false");
+  });
   $("reviewStartBtn").addEventListener("click", () => startQuiz("review"));
   $("clearBankBtn").addEventListener("click", () => {
     if (confirm("確定要清空全部錯題嗎？此操作無法復原。")) {
@@ -1165,6 +1398,8 @@ function bind() {
       $("bankFilled").hidden = empty;
       $("bankCountLabel").textContent = ids.length;
       showScreen("bank", { skipHistory: true });
+    } else if (name === "history") {
+      openHistory({ skipHistory: true });
     } else {
       showScreen(name, { skipHistory: true });
     }
@@ -1173,6 +1408,7 @@ function bind() {
   const initial = (location.hash || "").replace(/^#/, "");
   history.replaceState({ screen: "home" }, "", "#home");
   if (initial === "bank") openBank();
+  else if (initial === "history") openHistory();
 }
 
 bind();
