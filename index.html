@@ -271,12 +271,15 @@ h1 {
   display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap;
 }
 .icon-btn {
-  width: 40px; height: 40px; border-radius: 12px;
+  min-width: 40px; height: 40px; border-radius: 12px; padding: 0 10px;
   background: var(--card); border: 1px solid var(--line);
-  cursor: pointer; display: grid; place-items: center; flex: none;
-  color: var(--cream);
+  cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+  gap: 2px; flex: none; color: var(--cream); font-size: 0.82rem; font-weight: 650;
 }
-.icon-btn svg { width: 18px; height: 18px; }
+.icon-btn svg { width: 18px; height: 18px; flex: none; }
+.btn:disabled, .btn[disabled] {
+  opacity: 0.45; cursor: not-allowed; transform: none; filter: none;
+}
 .progress-wrap { flex: 1; min-width: 140px; }
 .progress-meta {
   display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--muted); margin-bottom: 5px;
@@ -468,7 +471,7 @@ footer.colophon {
     </div>
 
     <div class="panel">
-      <h2>選擇主題 <span>可複選；未選則視為全部</span></h2>
+      <h2>選擇主題 <span id="topicSelectedLabel">可複選，請至少選一個主題</span></h2>
       <div id="topicGrid" class="topics"></div>
       <div class="row-actions">
         <button type="button" class="linkish" id="selectAllTopics">全選</button>
@@ -515,6 +518,7 @@ footer.colophon {
     <div class="topbar">
       <button type="button" class="icon-btn" id="quitBtn" aria-label="結束並返回">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        <span>返回</span>
       </button>
       <div class="progress-wrap">
         <div class="progress-meta">
@@ -584,6 +588,7 @@ footer.colophon {
     <div class="topbar">
       <button type="button" class="icon-btn" id="bankBackBtn" aria-label="返回主頁">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        <span>返回</span>
       </button>
       <div>
         <div class="kicker">Wrong-answer bank</div>
@@ -717,12 +722,29 @@ function savePrefs() {
   }));
 }
 
-function showScreen(name) {
+function showScreen(name, opts) {
+  const options = opts || {};
+  const prev = state.screen;
   state.screen = name;
   document.querySelectorAll(".screen").forEach((el) => {
     el.classList.toggle("active", el.id === name);
   });
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  window.scrollTo(0, 0);
+  if (!options.skipHistory) {
+    const url = "#" + name;
+    const data = { screen: name };
+    if (options.replace || prev === name) history.replaceState(data, "", url);
+    else history.pushState(data, "", url);
+  }
+}
+
+function goHome(opts) {
+  const options = opts || {};
+  clearTimer();
+  updateBankChrome();
+  updateLastScore();
+  renderTopics();
+  showScreen("home", { skipHistory: options.skipHistory, replace: options.replace !== false });
 }
 
 function topicCounts() {
@@ -740,8 +762,11 @@ function renderTopics() {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "topic";
-    btn.setAttribute("aria-pressed", state.selectedTopics.has(t) ? "true" : "false");
-    btn.innerHTML = `<span class="box">${state.selectedTopics.has(t) ? "✓" : ""}</span>
+    const on = state.selectedTopics.has(t);
+    btn.setAttribute("role", "checkbox");
+    btn.setAttribute("aria-checked", on ? "true" : "false");
+    btn.setAttribute("aria-pressed", on ? "true" : "false");
+    btn.innerHTML = `<span class="box">${on ? "✓" : ""}</span>
       <span class="name">${escapeHtml(t)}<span class="zh">${TOPIC_ZH[t]}</span></span>
       <span class="n">${counts[t]}</span>`;
     btn.addEventListener("click", () => {
@@ -752,6 +777,18 @@ function renderTopics() {
     });
     grid.appendChild(btn);
   });
+  updateTopicChrome();
+}
+
+function updateTopicChrome() {
+  const n = state.selectedTopics.size;
+  const total = TOPIC_ORDER.length;
+  const label = $("topicSelectedLabel");
+  if (label) {
+    label.textContent = n ? `已選 ${n} / ${total} 個主題` : "請至少選一個主題";
+  }
+  const start = $("startBtn");
+  if (start) start.disabled = n === 0;
 }
 
 function escapeHtml(s) {
@@ -781,8 +818,8 @@ function updateLastScore() {
 
 function poolFromSelection() {
   const set = state.selectedTopics;
-  const useAll = set.size === 0 || set.size === TOPIC_ORDER.length;
-  return QUESTIONS.filter((q) => useAll || set.has(q.topic));
+  if (set.size === 0) return [];
+  return QUESTIONS.filter((q) => set.has(q.topic));
 }
 
 function startQuiz(mode) {
@@ -796,7 +833,11 @@ function startQuiz(mode) {
     }
   } else {
     pool = poolFromSelection();
-    if (!pool.length) pool = QUESTIONS.slice();
+    if (!pool.length) {
+      goHome();
+      updateTopicChrome();
+      return;
+    }
     const cap = state.length > 0 ? Math.min(state.length, pool.length) : pool.length;
     pool = shuffle(pool).slice(0, cap);
   }
@@ -935,7 +976,8 @@ function formatTime(ms) {
   return m ? `${m} 分 ${r} 秒` : `${r} 秒`;
 }
 
-function finishQuiz() {
+function finishQuiz(opts) {
+  const options = opts || {};
   clearTimer();
   state.elapsedMs = Date.now() - state.startedAt;
   const total = state.queue.length;
@@ -973,7 +1015,7 @@ function finishQuiz() {
   }
   $("resultBankBtn").hidden = loadWrong().length === 0;
   updateBankChrome();
-  showScreen("result");
+  showScreen("result", { replace: !options.fromPopstate });
 }
 
 function openBank() {
@@ -994,13 +1036,31 @@ function openBank() {
   showScreen("bank");
 }
 
-function confirmQuit() {
-  if (state.answers.length && !confirm("要結束本次測驗並查看目前成績嗎？")) return;
-  if (state.answers.length) finishQuiz();
-  else {
-    clearTimer();
-    showScreen("home");
+function confirmQuit(fromPopstate) {
+  if (state.answers.length) {
+    if (!confirm("要結束本次測驗並查看目前成績嗎？")) {
+      if (fromPopstate) history.pushState({ screen: "quiz" }, "", "#quiz");
+      return false;
+    }
+    finishQuiz({ fromPopstate: fromPopstate });
+    return true;
   }
+  clearTimer();
+  if (fromPopstate) goHome({ skipHistory: true, replace: false });
+  else goHome();
+  return true;
+}
+
+function requestBack() {
+  if (history.state && history.state.screen && history.state.screen !== "home" && history.length > 1) {
+    history.back();
+    return;
+  }
+  if (state.screen === "quiz") {
+    confirmQuit(false);
+    return;
+  }
+  goHome();
 }
 
 function bind() {
@@ -1035,13 +1095,13 @@ function bind() {
   });
   $("startBtn").addEventListener("click", () => startQuiz("practice"));
   $("openBankBtn").addEventListener("click", openBank);
-  $("quitBtn").addEventListener("click", confirmQuit);
+  $("quitBtn").addEventListener("click", () => requestBack());
   $("nextBtn").addEventListener("click", nextQuestion);
   $("retryBtn").addEventListener("click", () => startQuiz(state.mode));
   $("resultBankBtn").addEventListener("click", openBank);
-  $("homeBtn").addEventListener("click", () => { updateLastScore(); showScreen("home"); });
-  $("bankBackBtn").addEventListener("click", () => { updateBankChrome(); showScreen("home"); });
-  $("emptyHomeBtn").addEventListener("click", () => showScreen("home"));
+  $("homeBtn").addEventListener("click", () => goHome());
+  $("bankBackBtn").addEventListener("click", () => requestBack());
+  $("emptyHomeBtn").addEventListener("click", () => goHome());
   $("reviewStartBtn").addEventListener("click", () => startQuiz("review"));
   $("clearBankBtn").addEventListener("click", () => {
     if (confirm("確定要清空全部錯題嗎？此操作無法復原。")) {
@@ -1059,7 +1119,7 @@ function bind() {
   });
 
   const prefs = loadPrefs();
-  if (Array.isArray(prefs.topics) && prefs.topics.length) {
+  if (Array.isArray(prefs.topics)) {
     state.selectedTopics = new Set(prefs.topics.filter((t) => TOPIC_ZH[t]));
     renderTopics();
   }
@@ -1090,6 +1150,29 @@ function bind() {
       answer(map[e.key]);
     }
   });
+
+  window.addEventListener("popstate", (event) => {
+    const name = (event.state && event.state.screen) || "home";
+    if (state.screen === "quiz") {
+      confirmQuit(true);
+      return;
+    }
+    if (name === "home") goHome({ skipHistory: true, replace: false });
+    else if (name === "bank") {
+      const ids = loadWrong();
+      const empty = ids.length === 0;
+      $("bankEmpty").hidden = !empty;
+      $("bankFilled").hidden = empty;
+      $("bankCountLabel").textContent = ids.length;
+      showScreen("bank", { skipHistory: true });
+    } else {
+      showScreen(name, { skipHistory: true });
+    }
+  });
+
+  const initial = (location.hash || "").replace(/^#/, "");
+  history.replaceState({ screen: "home" }, "", "#home");
+  if (initial === "bank") openBank();
 }
 
 bind();
